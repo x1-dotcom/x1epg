@@ -3,7 +3,7 @@ from __future__ import annotations
 import unittest
 import urllib.request
 
-from tools.safe_http import SameHostHTTPSRedirectHandler, _validate_https_url
+from tools.safe_http import SameHostHTTPSRedirectHandler, _is_public_ip, _validate_https_url
 
 
 class SafeUrlTests(unittest.TestCase):
@@ -26,6 +26,30 @@ class SafeUrlTests(unittest.TestCase):
     def test_fragment_rejected(self):
         with self.assertRaises(RuntimeError):
             _validate_https_url("https://example.com/feed.xml#part")
+
+    def test_localhost_rejected(self):
+        for url in ("https://localhost/feed", "https://api.localhost/feed", "https://service.local/feed"):
+            with self.subTest(url=url):
+                with self.assertRaises(RuntimeError):
+                    _validate_https_url(url)
+
+    def test_private_ip_literals_rejected(self):
+        for url in (
+            "https://127.0.0.1/feed",
+            "https://10.0.0.1/feed",
+            "https://192.168.1.10/feed",
+            "https://169.254.169.254/latest/meta-data",
+            "https://[::1]/feed",
+        ):
+            with self.subTest(url=url):
+                with self.assertRaises(RuntimeError):
+                    _validate_https_url(url)
+
+    def test_public_ip_classifier(self):
+        self.assertTrue(_is_public_ip("8.8.8.8"))
+        self.assertFalse(_is_public_ip("127.0.0.1"))
+        self.assertFalse(_is_public_ip("10.0.0.1"))
+        self.assertFalse(_is_public_ip("169.254.169.254"))
 
 
 class RedirectPolicyTests(unittest.TestCase):
@@ -66,6 +90,18 @@ class RedirectPolicyTests(unittest.TestCase):
                 "Found",
                 {},
                 "http://example.com/b",
+            )
+
+    def test_redirect_to_private_ip_blocked(self):
+        handler = SameHostHTTPSRedirectHandler("example.com")
+        with self.assertRaises(RuntimeError):
+            handler.redirect_request(
+                self.make_request("https://example.com/a"),
+                None,
+                302,
+                "Found",
+                {},
+                "https://127.0.0.1/b",
             )
 
     def test_redirect_limit_enforced(self):
