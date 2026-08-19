@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="460" viewBox="0 0 1600 460" role="img" aria-label="X1 EPG Control">
+<defs>
+  <linearGradient id="bg" x1="0" x2="1"><stop stop-color="#05090d"/><stop offset="1" stop-color="#0a1318"/></linearGradient>
+  <linearGradient id="rail" x1="0" x2="1"><stop stop-color="#18e8ff"/><stop offset="1" stop-color="#4d7cff"/></linearGradient>
+</defs>
+<rect width="1600" height="460" rx="24" fill="url(#bg)"/>
+<path d="M52 64H1548M52 396H1548" stroke="#22313a" stroke-width="2"/>
+<path d="M92 112H430L470 72H760" stroke="#18e8ff" stroke-width="3" fill="none"/>
+<path d="M840 72H1090L1130 112H1508" stroke="#4d7cff" stroke-width="3" fill="none"/>
+<text x="92" y="176" fill="#f2fbff" font-family="Arial,Helvetica,sans-serif" font-size="84" font-weight="800">X1 // EPG CONTROL</text>
+<text x="96" y="226" fill="#87a6b5" font-family="Arial,Helvetica,sans-serif" font-size="24" letter-spacing="6">VALIDATE · NORMALIZE · QUALIFY · PRESERVE · PROVE</text>
+<g font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="700">
+  <rect x="96" y="286" width="180" height="52" rx="8" fill="#0d171d" stroke="#18e8ff"/><text x="139" y="319" fill="#dffbff">XMLTV</text>
+  <rect x="296" y="286" width="180" height="52" rx="8" fill="#0d171d" stroke="#18e8ff"/><text x="343" y="319" fill="#dffbff">SOURCE QA</text>
+  <rect x="496" y="286" width="180" height="52" rx="8" fill="#0d171d" stroke="#18e8ff"/><text x="539" y="319" fill="#dffbff">LKG</text>
+  <rect x="696" y="286" width="220" height="52" rx="8" fill="#0d171d" stroke="#4d7cff"/><text x="735" y="319" fill="#e4eaff">PROVENANCE</text>
+  <rect x="936" y="286" width="220" height="52" rx="8" fill="#0d171d" stroke="#4d7cff"/><text x="977" y="319" fill="#e4eaff">INTEGRITY</text>
+  <rect x="1176" y="286" width="280" height="52" rx="8" fill="#0d171d" stroke="#4d7cff"/><text x="1217" y="319" fill="#e4eaff">RIGHTS GATE</text>
+</g>
+<text x="96" y="386" fill="#18e8ff" font-family="Arial,Helvetica,sans-serif" font-size="17" letter-spacing="4">INGEST IS TECHNICAL. PUBLISHING REQUIRES RIGHTS.</text>
+</svg>
