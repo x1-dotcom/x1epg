@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "sourceGroup": "spain",
+  "country": "ES",
+  "timezone": "Europe/Madrid",
+  "languages": ["es-ES"],
+  "sources": [
+    {
+      "sourceId": "epgshare01-es1",
+      "type": "xmltv-gzip",
+      "url": "https://epgshare01.online/epgshare01/epg_ripper_ES1.xml.gz",
+      "channelListUrl": "https://epgshare01.online/epgshare01/epg_ripper_ES1.txt",
+      "ingestEnabled": true,
+      "publishAllowed": false,
+      "rightsStatus": "public-feed-no-license-found",
+      "notes": "Operational XMLTV source for Spain. Runtime ingestion/validation is allowed by X1 policy, but public redistribution remains blocked until explicit redistribution rights are verified."
+    }
+  ],
+  "channels": [
+    {"canonicalId":"la-1","name":"La 1","aliases":["TVE1","La1","La 1 HD"],"piconId":"la-1","tvgIds":["La.1.es"],"sourceMappings":[{"sourceId":"epgshare01-es1","channelId":"La.1.es","priority":1,"enabled":true}]},
+    {"canonicalId":"la-2","name":"La 2","aliases":["TVE2","La2","La 2 HD"],"piconId":"la-2","tvgIds":["La.2.es"],"sourceMappings":[{"sourceId":"epgshare01-es1","channelId":"La.2.es","priority":1,"enabled":true}]},
+    {"canonicalId":"canal-24-horas","name":"Canal 24 Horas","aliases":["24h","24 Horas","Canal 24h"],"piconId":"canal-24-horas","tvgIds":["Canal.24.horas.es"],"sourceMappings":[{"sourceId":"epgshare01-es1","channelId":"Canal.24.horas.es","priority":1,"enabled":true}]},
+    {"canonicalId":"antena-3","name":"Antena 3","aliases":["Antena3","A3"],"piconId":"antena-3","tvgIds":["Antena.3.es"],"sourceMappings":[{"sourceId":"epgshare01-es1","channelId":"Antena.3.es","priority":1,"enabled":true}]},
+    {"canonicalId":"lasexta","name":"laSexta","aliases":["La Sexta","la sexta"],"piconId":"lasexta","tvgIds":["laSexta.es"],"sourceMappings":[{"sourceId":"epgshare01-es1","channelId":"laSexta.es","priority":1,"enabled":true}]},
+    {"canonicalId":"clan","name":"Clan","aliases":["Clan TVE","Clan HD"],"piconId":"clan","tvgIds":["Clan.TVE.es"],"sourceMappings":[{"sourceId":"epgshare01-es1","channelId":"Clan.TVE.es","priority":1,"enabled":true}]},
+    {"canonicalId":"teledeporte","name":"Teledeporte","aliases":["TDP","Teledeporte HD"],"piconId":"teledeporte","tvgIds":["Teledeporte.es"],"sourceMappings":[{"sourceId":"epgshare01-es1","channelId":"Teledeporte.es","priority":1,"enabled":true}]},
+    {"canonicalId":"telecinco","name":"Telecinco","aliases":["Tele 5","Telecinco HD"],"piconId":"telecinco","tvgIds":["Telecinco.es"],"sourceMappings":[{"sourceId":"epgshare01-es1","channelId":"Telecinco.es","priority":1,"enabled":true}]},
+    {"canonicalId":"cuatro","name":"Cuatro","aliases":["Cuatro HD","4"],"piconId":"cuatro","tvgIds":["Cuatro.es"],"sourceMappings":[{"sourceId":"epgshare01-es1","channelId":"Cuatro.es","priority":1,"enabled":true}]}
+  ]
+}
