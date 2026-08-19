@@ -20,6 +20,7 @@
           "type": {"enum": ["xmltv", "xmltv-gzip"]},
           "url": {"type": "string", "pattern": "^https://"},
           "channelListUrl": {"type": ["string", "null"]},
+          "priority": {"type": "integer", "minimum": 1},
           "ingestEnabled": {"type": "boolean"},
           "publishAllowed": {"type": "boolean"},
           "rightsStatus": {"enum": ["verified-redistributable", "public-feed-no-license-found", "permission-required", "unknown"]},
@@ -28,7 +29,41 @@
         "additionalProperties": false
       }
     },
-    "channels": {"type": "array"}
+    "channels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["canonicalId", "name", "aliases", "piconId", "tvgIds"],
+        "properties": {
+          "canonicalId": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+          "name": {"type": "string", "minLength": 1},
+          "aliases": {"type": "array", "items": {"type": "string"}},
+          "piconId": {"type": ["string", "null"]},
+          "tvgIds": {"type": "array", "items": {"type": "string"}},
+          "sourceChannelId": {"type": "string", "minLength": 1},
+          "sourceMappings": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["sourceId", "channelId", "priority", "enabled"],
+              "properties": {
+                "sourceId": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+                "channelId": {"type": "string", "minLength": 1},
+                "priority": {"type": "integer", "minimum": 1},
+                "enabled": {"type": "boolean"}
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "oneOf": [
+          {"required": ["sourceChannelId"], "not": {"required": ["sourceMappings"]}},
+          {"required": ["sourceMappings"], "not": {"required": ["sourceChannelId"]}}
+        ],
+        "additionalProperties": false
+      }
+    }
   },
   "additionalProperties": false
 }
