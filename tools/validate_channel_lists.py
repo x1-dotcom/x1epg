@@ -2,27 +2,28 @@
 from __future__ import annotations
 
 import json
-import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
-from urllib.parse import urlparse
+
+from tools.safe_http import fetch_bounded_https
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "data" / "channel-list-validation.json"
-UA = "X1-EPG/1.0 (+https://github.com/x1-dotcom/x1epg)"
 MAX_LIST_BYTES = 4 * 1024 * 1024
+TEXT_CONTENT_TYPES = ("text/plain", "application/octet-stream")
 
 
 def fetch_text(url: str) -> str:
-    parsed = urlparse(url)
-    if parsed.scheme != "https" or not parsed.netloc:
-        raise RuntimeError("channel list URL must be HTTPS")
-    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "text/plain,*/*"})
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        data = resp.read(MAX_LIST_BYTES + 1)
-    if len(data) > MAX_LIST_BYTES:
-        raise RuntimeError("channel list exceeds safety limit")
-    return data.decode("utf-8-sig", errors="strict")
+    result = fetch_bounded_https(
+        url,
+        max_bytes=MAX_LIST_BYTES,
+        timeout=30,
+        accept="text/plain,application/octet-stream,*/*",
+        allowed_content_types=TEXT_CONTENT_TYPES,
+        retries=1,
+        max_redirects=3,
+    )
+    return result.data.decode("utf-8-sig", errors="strict")
 
 
 def parse_channel_ids(text: str) -> set[str]:
@@ -46,10 +47,14 @@ def mappings_for_source(manifest: dict, source_id: str) -> dict[str, str]:
                 if mapping.get("sourceId") == source_id and mapping.get("enabled") is True:
                     cid = mapping.get("channelId")
                     if isinstance(cid, str) and cid.strip():
+                        if cid in result:
+                            raise RuntimeError(f"duplicate source channel mapping: {source_id}/{cid}")
                         result[cid] = canonical
             continue
         legacy = channel.get("sourceChannelId")
         if len(sources) == 1 and sources[0].get("sourceId") == source_id and isinstance(legacy, str) and legacy.strip():
+            if legacy in result:
+                raise RuntimeError(f"duplicate legacy source channel mapping: {source_id}/{legacy}")
             result[legacy] = canonical
     return result
 
@@ -81,12 +86,7 @@ def main() -> None:
                 continue
             list_url = source.get("channelListUrl")
             if not isinstance(list_url, str) or not list_url.strip():
-                rows.append({
-                    "country": manifest.get("country"),
-                    "sourceId": source.get("sourceId"),
-                    "status": "FAILED",
-                    "error": "ingest-enabled source has no channelListUrl",
-                })
+                rows.append({"country": manifest.get("country"), "sourceId": source.get("sourceId"), "status": "FAILED", "error": "ingest-enabled source has no channelListUrl"})
                 failed = True
                 continue
             try:
@@ -95,29 +95,20 @@ def main() -> None:
                 if row["status"] != "OK":
                     failed = True
             except Exception as exc:
-                row = {
-                    "country": manifest.get("country"),
-                    "sourceId": source.get("sourceId"),
-                    "channelListUrl": list_url,
-                    "status": "FAILED",
-                    "error": str(exc),
-                }
+                row = {"country": manifest.get("country"), "sourceId": source.get("sourceId"), "channelListUrl": list_url, "status": "FAILED", "error": str(exc)}
                 failed = True
             rows.append(row)
 
     payload = {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
         "generatedAt": datetime.now(timezone.utc).isoformat(),
+        "networkPolicy": "HTTPS only; port 443 only; same-host HTTPS redirects only; bounded 4 MiB lists; content-type gate; transient retry only.",
         "policy": "Exact upstream channel-list membership preflight. No fuzzy matching and no automatic mapping mutation.",
         "sources": rows,
     }
     OUT.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     for row in rows:
-        print(
-            f"{row['sourceId']}: {row['status']} "
-            f"present={row.get('mappedPresent', 0)}/{row.get('mappedExpected', 0)} "
-            f"missing={len(row.get('mappedMissing', []))}"
-        )
+        print(f"{row['sourceId']}: {row['status']} present={row.get('mappedPresent', 0)}/{row.get('mappedExpected', 0)} missing={len(row.get('mappedMissing', []))}")
     if failed:
         raise SystemExit(1)
 
