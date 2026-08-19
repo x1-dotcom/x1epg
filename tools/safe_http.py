@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import ipaddress
 import socket
 import time
 import urllib.error
@@ -20,6 +21,18 @@ class FetchResult:
     status: int
 
 
+def _is_public_ip(value: str) -> bool:
+    ip = ipaddress.ip_address(value)
+    return not (
+        ip.is_private
+        or ip.is_loopback
+        or ip.is_link_local
+        or ip.is_multicast
+        or ip.is_reserved
+        or ip.is_unspecified
+    )
+
+
 def _validate_https_url(url: str) -> tuple[str, int | None]:
     parsed = urlparse(url)
     if parsed.scheme != "https" or not parsed.hostname:
@@ -30,7 +43,34 @@ def _validate_https_url(url: str) -> tuple[str, int | None]:
         raise RuntimeError("URL fragments are forbidden")
     if parsed.port not in (None, 443):
         raise RuntimeError("non-standard HTTPS ports are forbidden")
-    return parsed.hostname.lower(), parsed.port
+    host = parsed.hostname.lower().rstrip(".")
+    if host == "localhost" or host.endswith(".localhost") or host.endswith(".local"):
+        raise RuntimeError("local hostnames are forbidden")
+    try:
+        literal_ip = ipaddress.ip_address(host)
+    except ValueError:
+        pass
+    else:
+        if not _is_public_ip(str(literal_ip)):
+            raise RuntimeError("non-public IP literals are forbidden")
+    return host, parsed.port
+
+
+def _assert_public_dns(host: str) -> None:
+    try:
+        answers = socket.getaddrinfo(host, 443, type=socket.SOCK_STREAM)
+    except socket.gaierror as exc:
+        raise RuntimeError(f"DNS resolution failed for {host}: {exc}") from exc
+    if not answers:
+        raise RuntimeError(f"DNS returned no addresses for {host}")
+    resolved = {answer[4][0] for answer in answers}
+    for address in resolved:
+        try:
+            public = _is_public_ip(address)
+        except ValueError as exc:
+            raise RuntimeError(f"invalid DNS address for {host}: {address}") from exc
+        if not public:
+            raise RuntimeError(f"DNS for {host} resolved to non-public address {address}")
 
 
 class SameHostHTTPSRedirectHandler(urllib.request.HTTPRedirectHandler):
@@ -64,6 +104,7 @@ def fetch_bounded_https(
     if max_bytes <= 0:
         raise ValueError("max_bytes must be positive")
     original_host, _ = _validate_https_url(url)
+    _assert_public_dns(original_host)
     last_error: Exception | None = None
 
     for attempt in range(retries + 1):
@@ -76,6 +117,7 @@ def fetch_bounded_https(
                 final_host, _ = _validate_https_url(final_url)
                 if final_host != original_host:
                     raise RuntimeError(f"unexpected final host: {final_host}")
+                _assert_public_dns(final_host)
 
                 status = int(getattr(resp, "status", 200) or 200)
                 content_type = resp.headers.get_content_type() if resp.headers else None
