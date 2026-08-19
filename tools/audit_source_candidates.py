@@ -54,7 +54,17 @@ def main() -> None:
             "url": c["url"],
             "rightsStatus": c["rightsStatus"],
             "publishAllowed": c["publishAllowed"],
+            "auditEnabled": c.get("auditEnabled", True),
         }
+        if not c.get("auditEnabled", True):
+            row.update({
+                "status": "SKIPPED",
+                "decision": "REJECT_TERMS_OR_PERMISSION_REQUIRED",
+                "reason": c.get("notes", "candidate audit disabled by policy"),
+            })
+            rows.append(row)
+            continue
+
         try:
             data = fetch(c["url"])
             channel_count, programme_count, newest = parse_xmltv(data)
@@ -86,7 +96,7 @@ def main() -> None:
     OUT.write_text(json.dumps({
         "schemaVersion": 1,
         "generatedAt": now.isoformat(),
-        "policy": "Candidates never become fallback sources automatically. Promotion requires freshness, coverage, stability and explicit rights review.",
+        "policy": "Candidates never become fallback sources automatically. Promotion requires freshness, coverage, stability and explicit rights review. Candidates blocked by terms or permission requirements are not fetched by the automated auditor.",
         "candidates": rows,
     }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
