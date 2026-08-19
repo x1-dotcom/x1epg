@@ -11,6 +11,7 @@ on:
       - 'sources/**'
       - 'tools/sync_epg.py'
       - 'tools/plan_merge.py'
+      - 'tools/generate_xmltv.py'
       - 'tools/validate_sources.py'
       - '.github/workflows/sync-epg.yml'
 
@@ -53,6 +54,10 @@ jobs:
         if: steps.sync.outcome == 'success'
         continue-on-error: true
         run: python tools/plan_merge.py
+
+      - name: Check public XMLTV generation rights
+        if: steps.merge.outcome == 'success'
+        run: python tools/generate_xmltv.py --check-rights
 
       - name: Show merge decision
         if: steps.merge.outcome == 'success'
