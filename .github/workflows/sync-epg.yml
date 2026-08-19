@@ -40,6 +40,9 @@ jobs:
       - name: Run deterministic unit tests
         run: python -m unittest discover -s tests -v
 
+      - name: Verify existing integrity chain before runtime work
+        run: python tools/integrity_chain.py verify
+
       - name: Validate approved source manifests
         run: python tools/validate_sources.py
 
@@ -114,12 +117,26 @@ jobs:
         if: always()
         run: python tools/run_provenance.py
 
+      - name: Append provenance to integrity chain
+        if: always()
+        run: python tools/integrity_chain.py append
+
+      - name: Verify integrity chain after append
+        if: always()
+        run: python tools/integrity_chain.py verify
+
       - name: Show validation and merge decision
         if: always()
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
+          if Path('data/integrity-chain.json').exists():
+              i = json.load(open('data/integrity-chain.json', encoding='utf-8'))
+              print('Integrity chain sequence:', i['sequence'])
+              print('Integrity chain head:', i['headSha256'])
+              print('Integrity previous head:', i.get('previousHeadSha256'))
+              print('Integrity provenance:', i.get('provenanceSha256'))
           if Path('data/run-provenance.json').exists():
               p = json.load(open('data/run-provenance.json', encoding='utf-8'))
               print('Provenance digest:', p['provenanceSha256'])
@@ -199,16 +216,20 @@ jobs:
             echo 'run provenance missing'
             exit 1
           fi
+          if [ ! -f data/integrity-chain.json ] || [ ! -f data/integrity-chain-history.jsonl ]; then
+            echo 'integrity chain evidence missing'
+            exit 1
+          fi
           git config user.name 'x1-epg-bot'
           git config user.email 'x1-epg-bot@users.noreply.github.com'
-          git add data/index.json data/sync-report.json data/lkg-decision.json data/run-provenance.json
+          git add data/index.json data/sync-report.json data/lkg-decision.json data/run-provenance.json data/integrity-chain.json data/integrity-chain-history.jsonl
           for report in data/lkg-state.json data/global-validation.json data/catalog-coverage.json data/channel-list-validation.json data/runtime-failure-state.json data/runtime-failure-forensics.json data/source-candidate-report.json data/source-comparison-report.json data/quality-recommendations.json data/quality-state.json data/quality-decision-report.json data/merge-report.json; do
             if [ -f "$report" ]; then
               git add "$report"
             fi
           done
           if ! git diff --cached --quiet; then
-            git commit -m 'Refresh X1 EPG active LKG, provenance and runtime evidence'
+            git commit -m 'Refresh X1 EPG active LKG, provenance, integrity chain and runtime evidence'
             git pull --rebase origin main
             git push origin HEAD:main
           fi
