@@ -32,20 +32,5 @@ jobs:
       - name: Validate canonical catalog
         run: python tools/validate_catalog.py
 
-      - name: Validate source manifest JSON
-        run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          for path in sorted(Path('sources').glob('*.json')):
-              payload = json.loads(path.read_text(encoding='utf-8'))
-              if payload.get('schemaVersion') != 1:
-                  raise SystemExit(f'{path}: schemaVersion must be 1')
-              if not payload.get('country'):
-                  raise SystemExit(f'{path}: country is required')
-              if not isinstance(payload.get('sources'), list):
-                  raise SystemExit(f'{path}: sources must be an array')
-              if not isinstance(payload.get('channels'), list):
-                  raise SystemExit(f'{path}: channels must be an array')
-              print(f'{path}: OK')
-          PY
+      - name: Validate source manifests and rights gates
+        run: python tools/validate_sources.py
