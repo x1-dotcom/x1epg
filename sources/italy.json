@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "sourceGroup": "italy",
+  "country": "IT",
+  "timezone": "Europe/Rome",
+  "languages": ["it-IT"],
+  "sources": [
+    {
+      "sourceId": "epgshare01-it1",
+      "type": "xmltv-gzip",
+      "url": "https://epgshare01.online/epgshare01/epg_ripper_IT1.xml.gz",
+      "channelListUrl": "https://epgshare01.online/epgshare01/epg_ripper_IT1.txt",
+      "ingestEnabled": true,
+      "publishAllowed": false,
+      "rightsStatus": "public-feed-no-license-found",
+      "notes": "Operational XMLTV source for Italy. Public redistribution remains blocked until explicit redistribution rights are verified."
+    }
+  ],
+  "channels": [
+    {"canonicalId":"rai-1","name":"Rai 1","aliases":["RAI 1","Rai Uno","Rai 1 HD"],"piconId":"rai-1","tvgIds":["Rai.1.HD..101.it","Rai1.it"],"sourceMappings":[{"sourceId":"epgshare01-it1","channelId":"Rai.1.HD..101.it","priority":1,"enabled":true}]},
+    {"canonicalId":"canale-5","name":"Canale 5","aliases":["Canale5","Canale 5 HD"],"piconId":"canale-5","tvgIds":["Canale.5.it"],"sourceMappings":[{"sourceId":"epgshare01-it1","channelId":"Canale.5.it","priority":1,"enabled":true}]}
+  ]
+}
