@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "sourceGroup": "switzerland",
+  "country": "CH",
+  "timezone": "Europe/Zurich",
+  "languages": ["de-CH","fr-CH","it-CH"],
+  "sources": [
+    {
+      "sourceId": "epgshare01-ch1",
+      "type": "xmltv-gzip",
+      "url": "https://epgshare01.online/epgshare01/epg_ripper_CH1.xml.gz",
+      "channelListUrl": "https://epgshare01.online/epgshare01/epg_ripper_CH1.txt",
+      "ingestEnabled": true,
+      "publishAllowed": false,
+      "rightsStatus": "public-feed-no-license-found",
+      "notes": "Operational XMLTV source for Switzerland. Public redistribution remains blocked until explicit redistribution rights are verified."
+    }
+  ],
+  "channels": [
+    {"canonicalId":"srf-1","name":"SRF 1","aliases":["SRF1","SRF 1 HD"],"piconId":"srf-1","tvgIds":["SRF.1.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"SRF.1.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"srf-zwei","name":"SRF zwei","aliases":["SRF2","SRF 2","SRF zwei HD"],"piconId":"srf-zwei","tvgIds":["SRF.zwei.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"SRF.zwei.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"rts-1","name":"RTS 1","aliases":["RTS1","RTS Un","RTS 1 HD"],"piconId":"rts-1","tvgIds":["RTS.1.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"RTS.1.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"rts-2","name":"RTS 2","aliases":["RTS2","RTS Deux","RTS 2 HD"],"piconId":"rts-2","tvgIds":["RTS.2.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"RTS.2.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"rsi-la-1","name":"RSI La 1","aliases":["RSI LA 1","RSI La1"],"piconId":"rsi-la-1","tvgIds":["RSI.La.1.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"RSI.La.1.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"rsi-la-2","name":"RSI La 2","aliases":["RSI LA 2","RSI La2"],"piconId":"rsi-la-2","tvgIds":["RSI.LA.2.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"RSI.LA.2.ch","priority":1,"enabled":true}]}
+  ]
+}
