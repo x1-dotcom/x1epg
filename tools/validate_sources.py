@@ -25,6 +25,7 @@ def main() -> None:
 
     global_source_ids: set[str] = set()
     global_channel_ids: set[str] = set()
+    global_source_channel_pairs: set[tuple[str, str]] = set()
 
     for path in manifests:
         payload = json.loads(path.read_text(encoding="utf-8"))
@@ -47,7 +48,7 @@ def main() -> None:
             if missing:
                 fail(f"{path}: source missing {sorted(missing)}")
             sid = source["sourceId"]
-            if not ID_RE.fullmatch(sid):
+            if not isinstance(sid, str) or not ID_RE.fullmatch(sid):
                 fail(f"{path}: invalid sourceId {sid!r}")
             if sid in global_source_ids:
                 fail(f"duplicate sourceId across manifests: {sid}")
@@ -64,22 +65,61 @@ def main() -> None:
                 fail(f"{path}: {sid}: ingestEnabled/publishAllowed must be boolean")
             if source["publishAllowed"] and source["rightsStatus"] != "verified-redistributable":
                 fail(f"{path}: {sid}: publishAllowed requires verified-redistributable rights")
+            if "priority" in source and (not isinstance(source["priority"], int) or source["priority"] < 1):
+                fail(f"{path}: {sid}: priority must be a positive integer")
 
-        seen_source_channel: set[tuple[str, str]] = set()
         for channel in payload["channels"]:
             cid = channel.get("canonicalId")
-            source_channel = channel.get("sourceChannelId")
             if not isinstance(cid, str) or not ID_RE.fullmatch(cid):
                 fail(f"{path}: invalid canonicalId {cid!r}")
             if cid in global_channel_ids:
                 fail(f"duplicate canonicalId across source manifests: {cid}")
             global_channel_ids.add(cid)
-            if not isinstance(source_channel, str) or not source_channel.strip():
-                fail(f"{path}: {cid}: sourceChannelId required")
-            pair = (next(iter(local_source_ids)) if len(local_source_ids) == 1 else "", source_channel)
-            if pair in seen_source_channel:
-                fail(f"{path}: source channel reused: {source_channel}")
-            seen_source_channel.add(pair)
+
+            has_legacy = isinstance(channel.get("sourceChannelId"), str) and bool(channel.get("sourceChannelId", "").strip())
+            mappings = channel.get("sourceMappings")
+            has_mappings = mappings is not None
+            if has_legacy == has_mappings:
+                fail(f"{path}: {cid}: use exactly one of sourceChannelId or sourceMappings")
+
+            if has_legacy:
+                if len(local_source_ids) != 1:
+                    fail(f"{path}: {cid}: sourceChannelId is only valid when the manifest has exactly one source")
+                mappings = [{
+                    "sourceId": next(iter(local_source_ids)),
+                    "channelId": channel["sourceChannelId"],
+                    "priority": 100,
+                    "enabled": True,
+                }]
+            elif not isinstance(mappings, list) or not mappings:
+                fail(f"{path}: {cid}: sourceMappings must be a non-empty array")
+
+            priorities: set[int] = set()
+            source_ids_for_channel: set[str] = set()
+            for mapping in mappings:
+                if set(mapping) != {"sourceId", "channelId", "priority", "enabled"}:
+                    fail(f"{path}: {cid}: source mapping has invalid fields")
+                sid = mapping["sourceId"]
+                channel_id = mapping["channelId"]
+                priority = mapping["priority"]
+                if sid not in local_source_ids:
+                    fail(f"{path}: {cid}: source mapping references unknown local source {sid}")
+                if sid in source_ids_for_channel:
+                    fail(f"{path}: {cid}: source {sid} mapped more than once")
+                source_ids_for_channel.add(sid)
+                if not isinstance(channel_id, str) or not channel_id.strip():
+                    fail(f"{path}: {cid}: empty source channel id")
+                if not isinstance(priority, int) or priority < 1:
+                    fail(f"{path}: {cid}: mapping priority must be a positive integer")
+                if priority in priorities:
+                    fail(f"{path}: {cid}: duplicate mapping priority {priority}")
+                priorities.add(priority)
+                if not isinstance(mapping["enabled"], bool):
+                    fail(f"{path}: {cid}: mapping enabled must be boolean")
+                pair = (sid, channel_id)
+                if pair in global_source_channel_pairs:
+                    fail(f"source/channel pair reused by multiple canonical channels: {pair}")
+                global_source_channel_pairs.add(pair)
 
         print(f"{path.relative_to(ROOT)}: sources={len(payload['sources'])} channels={len(payload['channels'])} OK")
 
