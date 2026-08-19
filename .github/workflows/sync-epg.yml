@@ -17,6 +17,7 @@ on:
       - 'tools/audit_source_candidates.py'
       - 'tools/compare_sources.py'
       - 'tools/quality_engine.py'
+      - 'tools/decision_guard.py'
       - 'tools/validate_sources.py'
       - '.github/workflows/sync-epg.yml'
 
@@ -62,9 +63,15 @@ jobs:
         run: python tools/compare_sources.py
 
       - name: Build advisory EPG quality recommendations
+        id: quality
         if: steps.compare.outcome == 'success'
         continue-on-error: true
         run: python tools/quality_engine.py
+
+      - name: Apply stateful anti-flap decision guard
+        if: steps.quality.outcome == 'success'
+        continue-on-error: true
+        run: python tools/decision_guard.py
 
       - name: Ingest and validate approved live XMLTV sources
         id: sync
@@ -105,6 +112,12 @@ jobs:
           if Path('data/quality-recommendations.json').exists():
               q = json.load(open('data/quality-recommendations.json', encoding='utf-8'))
               print('Advisory quality recommendations:', q['recommendationCounts'])
+          if Path('data/quality-decision-report.json').exists():
+              d = json.load(open('data/quality-decision-report.json', encoding='utf-8'))
+              counts = {}
+              for row in d.get('channels', []):
+                  counts[row['action']] = counts.get(row['action'], 0) + 1
+              print('Decision guard actions:', counts)
           PY
 
       - name: Persist canonical index and health reports
@@ -117,7 +130,7 @@ jobs:
           git config user.name 'x1-epg-bot'
           git config user.email 'x1-epg-bot@users.noreply.github.com'
           git add data/index.json data/sync-report.json
-          for report in data/source-candidate-report.json data/source-comparison-report.json data/quality-recommendations.json data/merge-report.json; do
+          for report in data/source-candidate-report.json data/source-comparison-report.json data/quality-recommendations.json data/quality-state.json data/quality-decision-report.json data/merge-report.json; do
             if [ -f "$report" ]; then
               git add "$report"
             fi
