@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-19T12:56:00+02:00",
+  "generatedAt": "2026-08-19T13:02:00+02:00",
   "candidates": [
     {
       "candidateId": "fonz-epg-tv-portuguesa",
@@ -27,6 +27,102 @@
       "maxProgrammeAgeHours": 48,
       "promotionPolicy": "Do not ingest, mirror, retransmit or use as a commercial X1 fallback unless EPG.PW grants explicit permission compatible with X1 commercial use and redistribution.",
       "notes": "EPG.PW publishes standard XMLTV feeds and current programme pages, but its Terms of Service limit site access/use to personal non-commercial purposes and prohibit publishing, retransmitting or using the service through external servers unless expressly authorised. Candidate is therefore legally blocked for the commercial X1 EPG pipeline without explicit permission."
+    },
+    {
+      "candidateId": "epgshare01-es1",
+      "country": "ES",
+      "type": "xmltv-gzip",
+      "url": "https://epgshare01.online/epgshare01/epg_ripper_ES1.xml.gz",
+      "channelListUrl": "https://epgshare01.online/epgshare01/epg_ripper_ES1.txt",
+      "rightsStatus": "public-feed-no-license-found",
+      "publishAllowed": false,
+      "auditEnabled": true,
+      "maxProgrammeAgeHours": 48,
+      "promotionPolicy": "Qualify runtime freshness and coverage first; public redistribution remains blocked until rights are proven."
+    },
+    {
+      "candidateId": "epgshare01-fr1",
+      "country": "FR",
+      "type": "xmltv-gzip",
+      "url": "https://epgshare01.online/epgshare01/epg_ripper_FR1.xml.gz",
+      "channelListUrl": "https://epgshare01.online/epgshare01/epg_ripper_FR1.txt",
+      "rightsStatus": "public-feed-no-license-found",
+      "publishAllowed": false,
+      "auditEnabled": true,
+      "maxProgrammeAgeHours": 48,
+      "promotionPolicy": "Qualify runtime freshness and coverage first; public redistribution remains blocked until rights are proven."
+    },
+    {
+      "candidateId": "epgshare01-de1",
+      "country": "DE",
+      "type": "xmltv-gzip",
+      "url": "https://epgshare01.online/epgshare01/epg_ripper_DE1.xml.gz",
+      "channelListUrl": "https://epgshare01.online/epgshare01/epg_ripper_DE1.txt",
+      "rightsStatus": "public-feed-no-license-found",
+      "publishAllowed": false,
+      "auditEnabled": true,
+      "maxProgrammeAgeHours": 48,
+      "promotionPolicy": "Qualify runtime freshness and coverage first; public redistribution remains blocked until rights are proven."
+    },
+    {
+      "candidateId": "epgshare01-it1",
+      "country": "IT",
+      "type": "xmltv-gzip",
+      "url": "https://epgshare01.online/epgshare01/epg_ripper_IT1.xml.gz",
+      "channelListUrl": "https://epgshare01.online/epgshare01/epg_ripper_IT1.txt",
+      "rightsStatus": "public-feed-no-license-found",
+      "publishAllowed": false,
+      "auditEnabled": true,
+      "maxProgrammeAgeHours": 48,
+      "promotionPolicy": "Qualify runtime freshness and coverage first; public redistribution remains blocked until rights are proven."
+    },
+    {
+      "candidateId": "epgshare01-uk1",
+      "country": "GB",
+      "type": "xmltv-gzip",
+      "url": "https://epgshare01.online/epgshare01/epg_ripper_UK1.xml.gz",
+      "channelListUrl": "https://epgshare01.online/epgshare01/epg_ripper_UK1.txt",
+      "rightsStatus": "public-feed-no-license-found",
+      "publishAllowed": false,
+      "auditEnabled": true,
+      "maxProgrammeAgeHours": 48,
+      "promotionPolicy": "Qualify runtime freshness and coverage first; public redistribution remains blocked until rights are proven."
+    },
+    {
+      "candidateId": "epgshare01-ch1",
+      "country": "CH",
+      "type": "xmltv-gzip",
+      "url": "https://epgshare01.online/epgshare01/epg_ripper_CH1.xml.gz",
+      "channelListUrl": "https://epgshare01.online/epgshare01/epg_ripper_CH1.txt",
+      "rightsStatus": "public-feed-no-license-found",
+      "publishAllowed": false,
+      "auditEnabled": true,
+      "maxProgrammeAgeHours": 48,
+      "promotionPolicy": "Qualify runtime freshness and coverage first; public redistribution remains blocked until rights are proven."
+    },
+    {
+      "candidateId": "epgshare01-nl1",
+      "country": "NL",
+      "type": "xmltv-gzip",
+      "url": "https://epgshare01.online/epgshare01/epg_ripper_NL1.xml.gz",
+      "channelListUrl": "https://epgshare01.online/epgshare01/epg_ripper_NL1.txt",
+      "rightsStatus": "public-feed-no-license-found",
+      "publishAllowed": false,
+      "auditEnabled": true,
+      "maxProgrammeAgeHours": 48,
+      "promotionPolicy": "Qualify runtime freshness and coverage first; public redistribution remains blocked until rights are proven."
+    },
+    {
+      "candidateId": "epgshare01-br1",
+      "country": "BR",
+      "type": "xmltv-gzip",
+      "url": "https://epgshare01.online/epgshare01/epg_ripper_BR1.xml.gz",
+      "channelListUrl": "https://epgshare01.online/epgshare01/epg_ripper_BR1.txt",
+      "rightsStatus": "public-feed-no-license-found",
+      "publishAllowed": false,
+      "auditEnabled": true,
+      "maxProgrammeAgeHours": 48,
+      "promotionPolicy": "Qualify runtime freshness and coverage first; public redistribution remains blocked until rights are proven."
     }
   ]
 }
