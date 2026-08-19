@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-19T13:02:00+02:00",
+  "generatedAt": "2026-08-19T13:08:00+02:00",
   "candidates": [
     {
       "candidateId": "fonz-epg-tv-portuguesa",
@@ -123,6 +123,19 @@
       "auditEnabled": true,
       "maxProgrammeAgeHours": 48,
       "promotionPolicy": "Qualify runtime freshness and coverage first; public redistribution remains blocked until rights are proven."
+    },
+    {
+      "candidateId": "doblem-global",
+      "country": "MULTI",
+      "type": "xmltv",
+      "url": "https://raw.githubusercontent.com/davidmuma/EPG_dobleM/master/guiatv.xml",
+      "repository": "https://github.com/davidmuma/EPG_dobleM",
+      "rightsStatus": "public-feed-no-license-found",
+      "publishAllowed": false,
+      "auditEnabled": true,
+      "maxProgrammeAgeHours": 12,
+      "promotionPolicy": "Use only as a technically qualified secondary candidate until redistribution rights are explicitly verified. Prefer channel-level fallback after overlap, freshness and stability measurements; never bulk-promote the whole guide automatically.",
+      "notes": "Actively maintained multi-country XMLTV guide focused on Spain with additional English, French, German and Portuguese channels. README states four updates per day and seven days of programming. Current guiatv.xml identifies generator timestamp 19/08/2026 12:47. No LICENSE file was found in the repository root, so public X1 redistribution remains blocked pending explicit rights verification."
     }
   ]
 }
