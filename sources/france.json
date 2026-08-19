@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "sourceGroup": "france",
+  "country": "FR",
+  "timezone": "Europe/Paris",
+  "languages": ["fr-FR"],
+  "sources": [
+    {
+      "sourceId": "epgshare01-fr1",
+      "type": "xmltv-gzip",
+      "url": "https://epgshare01.online/epgshare01/epg_ripper_FR1.xml.gz",
+      "channelListUrl": "https://epgshare01.online/epgshare01/epg_ripper_FR1.txt",
+      "ingestEnabled": true,
+      "publishAllowed": false,
+      "rightsStatus": "public-feed-no-license-found",
+      "notes": "Operational XMLTV source for France. Public redistribution remains blocked until explicit redistribution rights are verified."
+    }
+  ],
+  "channels": [
+    {"canonicalId":"france-2","name":"France 2","aliases":["France2","France 2 HD"],"piconId":"france-2","tvgIds":["France.2.fr"],"sourceMappings":[{"sourceId":"epgshare01-fr1","channelId":"France.2.fr","priority":1,"enabled":true}]},
+    {"canonicalId":"m6","name":"M6","aliases":["M6 HD"],"piconId":"m6","tvgIds":["M6.fr"],"sourceMappings":[{"sourceId":"epgshare01-fr1","channelId":"M6.fr","priority":1,"enabled":true}]}
+  ]
+}
