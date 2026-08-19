@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "sourceGroup": "portugal",
+  "country": "PT",
+  "timezone": "Europe/Lisbon",
+  "languages": ["pt-PT"],
+  "sources": [],
+  "channels": []
+}
