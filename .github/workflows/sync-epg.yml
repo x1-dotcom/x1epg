@@ -43,13 +43,16 @@ jobs:
       - name: Validate approved source manifests
         run: python tools/validate_sources.py
 
-      - name: Build canonical catalog from approved manifests
+      - name: Capture last-known-good canonical index
+        run: python tools/lkg_guard.py snapshot
+
+      - name: Build canonical catalog candidate from approved manifests
         run: python tools/build_index.py
 
-      - name: Validate canonical catalog
+      - name: Validate canonical catalog candidate
         run: python tools/validate_catalog.py
 
-      - name: Validate global manifest/index consistency
+      - name: Validate global manifest/index candidate consistency
         run: python tools/global_validate.py
 
       - name: Build canonical catalog coverage report
@@ -99,18 +102,32 @@ jobs:
         if: steps.merge.outcome == 'success'
         run: python tools/generate_xmltv.py --check-rights
 
+      - name: Promote candidate or restore last-known-good index
+        if: always()
+        run: |
+          python tools/lkg_guard.py finalize \
+            --channel-list "${{ steps.channel_list.outcome }}" \
+            --sync "${{ steps.sync.outcome }}" \
+            --merge "${{ steps.merge.outcome }}"
+
       - name: Show validation and merge decision
         if: always()
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
+          if Path('data/lkg-decision.json').exists():
+              l = json.load(open('data/lkg-decision.json', encoding='utf-8'))
+              print('LKG decision:', l['decision'])
+              print('LKG gates:', l['gates'])
+              print('LKG rollback performed:', l['rollbackPerformed'])
+              print('Active index:', l['activeIndex'])
           if Path('data/global-validation.json').exists():
               g = json.load(open('data/global-validation.json', encoding='utf-8'))
-              print('Global validation:', g['status'])
-              print('Canonical channels:', g['indexChannelCount'])
-              print('Countries:', g['countries'])
-              print('Picon coverage:', g['piconCoverage'])
+              print('Candidate global validation:', g['status'])
+              print('Candidate canonical channels:', g['indexChannelCount'])
+              print('Candidate countries:', g['countries'])
+              print('Candidate picon coverage:', g['piconCoverage'])
           if Path('data/channel-list-validation.json').exists():
               c = json.load(open('data/channel-list-validation.json', encoding='utf-8'))
               print('Channel-list sources:', [(r.get('sourceId'), r.get('status'), len(r.get('mappedMissing', []))) for r in c.get('sources', [])])
@@ -156,23 +173,27 @@ jobs:
               print('Decision guard actions:', counts)
           PY
 
-      - name: Persist canonical index and health reports
+      - name: Persist active canonical index and health reports
         if: always()
         run: |
           if [ ! -f data/sync-report.json ]; then
             echo 'sync report missing'
             exit 1
           fi
+          if [ ! -f data/lkg-decision.json ]; then
+            echo 'LKG decision missing'
+            exit 1
+          fi
           git config user.name 'x1-epg-bot'
           git config user.email 'x1-epg-bot@users.noreply.github.com'
-          git add data/index.json data/sync-report.json
-          for report in data/global-validation.json data/catalog-coverage.json data/channel-list-validation.json data/runtime-failure-state.json data/runtime-failure-forensics.json data/source-candidate-report.json data/source-comparison-report.json data/quality-recommendations.json data/quality-state.json data/quality-decision-report.json data/merge-report.json; do
+          git add data/index.json data/sync-report.json data/lkg-decision.json
+          for report in data/lkg-state.json data/global-validation.json data/catalog-coverage.json data/channel-list-validation.json data/runtime-failure-state.json data/runtime-failure-forensics.json data/source-candidate-report.json data/source-comparison-report.json data/quality-recommendations.json data/quality-state.json data/quality-decision-report.json data/merge-report.json; do
             if [ -f "$report" ]; then
               git add "$report"
             fi
           done
           if ! git diff --cached --quiet; then
-            git commit -m 'Refresh X1 EPG runtime proof and failure forensics'
+            git commit -m 'Refresh X1 EPG active LKG and runtime evidence'
             git pull --rebase origin main
             git push origin HEAD:main
           fi
