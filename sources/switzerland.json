@@ -19,9 +19,47 @@
   "channels": [
     {"canonicalId":"srf-1","name":"SRF 1","aliases":["SRF1","SRF 1 HD"],"piconId":"srf-1","tvgIds":["SRF.1.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"SRF.1.ch","priority":1,"enabled":true}]},
     {"canonicalId":"srf-zwei","name":"SRF zwei","aliases":["SRF2","SRF 2","SRF zwei HD"],"piconId":"srf-zwei","tvgIds":["SRF.zwei.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"SRF.zwei.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"srf-info","name":"SRF info","aliases":["SRF Info"],"piconId":null,"tvgIds":["SRF.info.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"SRF.info.ch","priority":1,"enabled":true}]},
     {"canonicalId":"rts-1","name":"RTS 1","aliases":["RTS1","RTS Un","RTS 1 HD"],"piconId":"rts-1","tvgIds":["RTS.1.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"RTS.1.ch","priority":1,"enabled":true}]},
     {"canonicalId":"rts-2","name":"RTS 2","aliases":["RTS2","RTS Deux","RTS 2 HD"],"piconId":"rts-2","tvgIds":["RTS.2.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"RTS.2.ch","priority":1,"enabled":true}]},
     {"canonicalId":"rsi-la-1","name":"RSI La 1","aliases":["RSI LA 1","RSI La1"],"piconId":"rsi-la-1","tvgIds":["RSI.La.1.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"RSI.La.1.ch","priority":1,"enabled":true}]},
-    {"canonicalId":"rsi-la-2","name":"RSI La 2","aliases":["RSI LA 2","RSI La2"],"piconId":"rsi-la-2","tvgIds":["RSI.LA.2.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"RSI.LA.2.ch","priority":1,"enabled":true}]}
+    {"canonicalId":"rsi-la-2","name":"RSI La 2","aliases":["RSI LA 2","RSI La2"],"piconId":"rsi-la-2","tvgIds":["RSI.LA.2.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"RSI.LA.2.ch","priority":1,"enabled":true}]},
+
+    {"canonicalId":"3plus-ch","name":"3+","aliases":["3 Plus"],"piconId":null,"tvgIds":["3+.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"3+.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"4plus-ch","name":"4+","aliases":["4 Plus"],"piconId":null,"tvgIds":["4+.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"4+.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"5plus-ch","name":"5+","aliases":["5 Plus"],"piconId":null,"tvgIds":["5+.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"5+.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"6plus-ch","name":"6+","aliases":["6 Plus"],"piconId":null,"tvgIds":["6+.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"6+.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"puls-8","name":"Puls 8","aliases":["Puls8"],"piconId":null,"tvgIds":["Puls.8.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"Puls.8.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"star-tv-ch","name":"Star TV","aliases":["StarTV Switzerland"],"piconId":null,"tvgIds":["Star.TV.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"Star.TV.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"swiss1","name":"SWISS1","aliases":["Swiss 1"],"piconId":null,"tvgIds":["SWISS1.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"SWISS1.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"tv24-ch","name":"TV24","aliases":["TV 24 Switzerland"],"piconId":null,"tvgIds":["TV24.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"TV24.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"tv25-ch","name":"TV25","aliases":["TV 25 Switzerland"],"piconId":null,"tvgIds":["TV25.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"TV25.ch","priority":1,"enabled":true}]},
+
+    {"canonicalId":"tele-zuri","name":"TeleZüri","aliases":["Tele Züri","TeleZuri"],"piconId":null,"tvgIds":["TeleZüri.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"TeleZüri.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"tele-1-ch","name":"Tele 1","aliases":["Tele1"],"piconId":null,"tvgIds":["Tele.1.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"Tele.1.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"tele-barn","name":"TeleBärn","aliases":["Tele Bärn","TeleBaern"],"piconId":null,"tvgIds":["Tele.Bärn.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"Tele.Bärn.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"telebasel","name":"Telebasel","aliases":["Tele Basel"],"piconId":null,"tvgIds":["Telebasel.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"Telebasel.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"tele-top","name":"Tele Top","aliases":["TeleTop"],"piconId":null,"tvgIds":["Tele.Top.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"Tele.Top.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"tvo-ch","name":"TVO","aliases":["TV Ostschweiz"],"piconId":null,"tvgIds":["TVO.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"TVO.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"tv-sudostschweiz","name":"TV Südostschweiz","aliases":["TV Suedostschweiz"],"piconId":null,"tvgIds":["TV.Südostschweiz.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"TV.Südostschweiz.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"tv-oberwallis","name":"TV Oberwallis","aliases":["TVOberwallis"],"piconId":null,"tvgIds":["TV.Oberwallis.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"TV.Oberwallis.ch","priority":1,"enabled":true}]},
+
+    {"canonicalId":"la-tele","name":"La Télé","aliases":["La Tele"],"piconId":null,"tvgIds":["La.Télé.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"La.Télé.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"leman-bleu","name":"Léman Bleu","aliases":["Leman Bleu","Léman Bleu Télévision"],"piconId":null,"tvgIds":["Léman.Bleu.Télévision.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"Léman.Bleu.Télévision.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"canal-9-ch","name":"Canal 9","aliases":["Kanal 9"],"piconId":null,"tvgIds":["Canal.9.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"Canal.9.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"canal-alpha-ju","name":"Canal Alpha JU","aliases":["Canal Alpha Jura"],"piconId":null,"tvgIds":["Canal.Alpha.JU.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"Canal.Alpha.JU.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"canal-alpha-ne","name":"Canal Alpha NE","aliases":["Canal Alpha Neuchâtel","Canal Alpha Neuchatel"],"piconId":null,"tvgIds":["Canal.Alpha.NE.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"Canal.Alpha.NE.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"grand-geneve-tv","name":"Grand Genève TV","aliases":["Grand Geneve TV"],"piconId":null,"tvgIds":["Grand.Genève.TV.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"Grand.Genève.TV.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"rhone-tv","name":"Rhône TV","aliases":["Rhone TV"],"piconId":null,"tvgIds":["Rhône.TV.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"Rhône.TV.ch","priority":1,"enabled":true}]},
+
+    {"canonicalId":"tele-ticino","name":"TeleTicino","aliases":["Tele Ticino"],"piconId":null,"tvgIds":["Tele.Ticino.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"Tele.Ticino.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"radio-ticino-channel","name":"Radio Ticino Channel","aliases":["RTC"],"piconId":null,"tvgIds":["Radio.Ticino.Channel.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"Radio.Ticino.Channel.ch","priority":1,"enabled":true}]},
+
+    {"canonicalId":"blue-sport-1","name":"blue Sport 1","aliases":["Blue Sport 1"],"piconId":null,"tvgIds":["blue.Sport.1.Live.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"blue.Sport.1.Live.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"blue-sport-2","name":"blue Sport 2","aliases":["Blue Sport 2"],"piconId":null,"tvgIds":["blue.Sport.2.Live.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"blue.Sport.2.Live.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"blue-sport-3","name":"blue Sport 3","aliases":["Blue Sport 3"],"piconId":null,"tvgIds":["blue.Sport.3.Live.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"blue.Sport.3.Live.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"mysports-eins","name":"MySports Eins","aliases":["MySports 1"],"piconId":null,"tvgIds":["MySports.Eins.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"MySports.Eins.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"mysports-un","name":"MySports Un","aliases":["MySports 1 FR"],"piconId":null,"tvgIds":["MySports.Un.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"MySports.Un.ch","priority":1,"enabled":true}]},
+    {"canonicalId":"swiss-sport-tv","name":"Swiss Sport TV","aliases":["SwissSport TV"],"piconId":null,"tvgIds":["Swiss.Sport.TV.ch"],"sourceMappings":[{"sourceId":"epgshare01-ch1","channelId":"Swiss.Sport.TV.ch","priority":1,"enabled":true}]}
   ]
 }
