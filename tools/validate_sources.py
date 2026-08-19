@@ -5,7 +5,8 @@ import json
 import re
 import sys
 from pathlib import Path
-from urllib.parse import urlparse
+
+from tools.safe_http import _validate_https_url
 
 ROOT = Path(__file__).resolve().parents[1]
 ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
@@ -56,9 +57,18 @@ def main() -> None:
             local_source_ids.add(sid)
             if source["type"] not in TYPES:
                 fail(f"{path}: {sid}: invalid type")
-            parsed = urlparse(source["url"])
-            if parsed.scheme != "https" or not parsed.netloc:
-                fail(f"{path}: {sid}: source URL must be HTTPS")
+            try:
+                _validate_https_url(source["url"])
+            except Exception as exc:
+                fail(f"{path}: {sid}: invalid source URL: {exc}")
+            if source.get("ingestEnabled"):
+                list_url = source.get("channelListUrl")
+                if not isinstance(list_url, str) or not list_url.strip():
+                    fail(f"{path}: {sid}: ingest-enabled source requires channelListUrl")
+                try:
+                    _validate_https_url(list_url)
+                except Exception as exc:
+                    fail(f"{path}: {sid}: invalid channelListUrl: {exc}")
             if source["rightsStatus"] not in RIGHTS:
                 fail(f"{path}: {sid}: invalid rightsStatus")
             if not isinstance(source["ingestEnabled"], bool) or not isinstance(source["publishAllowed"], bool):
@@ -85,12 +95,7 @@ def main() -> None:
             if has_legacy:
                 if len(local_source_ids) != 1:
                     fail(f"{path}: {cid}: sourceChannelId is only valid when the manifest has exactly one source")
-                mappings = [{
-                    "sourceId": next(iter(local_source_ids)),
-                    "channelId": channel["sourceChannelId"],
-                    "priority": 100,
-                    "enabled": True,
-                }]
+                mappings = [{"sourceId": next(iter(local_source_ids)), "channelId": channel["sourceChannelId"], "priority": 100, "enabled": True}]
             elif not isinstance(mappings, list) or not mappings:
                 fail(f"{path}: {cid}: sourceMappings must be a non-empty array")
 
