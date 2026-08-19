@@ -10,6 +10,7 @@ on:
     paths:
       - 'sources/**'
       - 'data/source-candidates.json'
+      - 'tools/build_index.py'
       - 'tools/sync_epg.py'
       - 'tools/plan_merge.py'
       - 'tools/generate_xmltv.py'
@@ -40,15 +41,18 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Validate catalog
+      - name: Validate approved source manifests
+        run: python tools/validate_sources.py
+
+      - name: Build canonical catalog from approved manifests
+        run: python tools/build_index.py
+
+      - name: Validate canonical catalog
         run: python tools/validate_catalog.py
 
       - name: Audit untrusted source candidates
         continue-on-error: true
         run: python tools/audit_source_candidates.py
-
-      - name: Validate approved source manifests
-        run: python tools/validate_sources.py
 
       - name: Ingest and validate approved live XMLTV sources
         id: sync
@@ -83,7 +87,7 @@ jobs:
                   print('Candidate:', row['candidateId'], row['decision'], 'newest=', row.get('newestProgramme'))
           PY
 
-      - name: Persist health, candidate and merge reports
+      - name: Persist canonical index, health, candidate and merge reports
         if: always()
         run: |
           if [ ! -f data/sync-report.json ]; then
@@ -92,7 +96,7 @@ jobs:
           fi
           git config user.name 'x1-epg-bot'
           git config user.email 'x1-epg-bot@users.noreply.github.com'
-          git add data/sync-report.json
+          git add data/index.json data/sync-report.json
           if [ -f data/source-candidate-report.json ]; then
             git add data/source-candidate-report.json
           fi
@@ -100,7 +104,7 @@ jobs:
             git add data/merge-report.json
           fi
           if ! git diff --cached --quiet; then
-            git commit -m 'Refresh X1 EPG source, candidate and fallback health'
+            git commit -m 'Refresh X1 EPG canonical, source, candidate and fallback health'
             git pull --rebase origin main
             git push origin HEAD:main
           fi
