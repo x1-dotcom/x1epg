@@ -19,6 +19,54 @@
   "channels": [
     {"canonicalId":"das-erste","name":"Das Erste","aliases":["ARD","Das Erste HD"],"piconId":"das-erste","tvgIds":["Das.Erste.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"Das.Erste.de","priority":1,"enabled":true}]},
     {"canonicalId":"zdf","name":"ZDF","aliases":["ZDF HD"],"piconId":"zdf","tvgIds":["ZDF.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"ZDF.de","priority":1,"enabled":true}]},
-    {"canonicalId":"rtl-de","name":"RTL","aliases":["RTL Television","RTL HD"],"piconId":"rtl-de","tvgIds":["RTL.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"RTL.de","priority":1,"enabled":true}]}
+    {"canonicalId":"rtl-de","name":"RTL","aliases":["RTL Television","RTL HD"],"piconId":"rtl-de","tvgIds":["RTL.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"RTL.de","priority":1,"enabled":true}]},
+    {"canonicalId":"prosieben","name":"ProSieben","aliases":["Pro 7","Pro7","ProSieben HD"],"piconId":"prosieben","tvgIds":["ProSieben.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"ProSieben.de","priority":1,"enabled":true}]},
+
+    {"canonicalId":"sat1-de","name":"SAT.1","aliases":["Sat 1","SAT1"],"piconId":null,"tvgIds":["SAT.1.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"SAT.1.de","priority":1,"enabled":true}]},
+    {"canonicalId":"rtlzwei","name":"RTLZWEI","aliases":["RTL2","RTL II"],"piconId":null,"tvgIds":["RTLZWEI.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"RTLZWEI.de","priority":1,"enabled":true}]},
+    {"canonicalId":"vox-de","name":"VOX","aliases":["VOX HD"],"piconId":null,"tvgIds":["VOX.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"VOX.de","priority":1,"enabled":true}]},
+    {"canonicalId":"kabel-eins","name":"kabel eins","aliases":["Kabel 1","Kabel Eins HD"],"piconId":null,"tvgIds":["kabel.eins.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"kabel.eins.de","priority":1,"enabled":true}]},
+    {"canonicalId":"nitro-de","name":"NITRO","aliases":["RTL Nitro"],"piconId":null,"tvgIds":["NITRO.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"NITRO.de","priority":1,"enabled":true}]},
+    {"canonicalId":"sixx","name":"sixx","aliases":["sixx HD"],"piconId":null,"tvgIds":["sixx.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"sixx.de","priority":1,"enabled":true}]},
+    {"canonicalId":"super-rtl","name":"SUPER RTL","aliases":["SuperRTL"],"piconId":null,"tvgIds":["SUPER.RTL.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"SUPER.RTL.de","priority":1,"enabled":true}]},
+    {"canonicalId":"tele-5-de","name":"Tele 5","aliases":["TELE 5"],"piconId":null,"tvgIds":["Tele.5.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"Tele.5.de","priority":1,"enabled":true}]},
+
+    {"canonicalId":"3sat","name":"3sat","aliases":[],"piconId":null,"tvgIds":["3sat.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"3sat.de","priority":1,"enabled":true}]},
+    {"canonicalId":"arte-de","name":"ARTE","aliases":["Arte Deutschland"],"piconId":null,"tvgIds":["ARTE.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"ARTE.de","priority":1,"enabled":true}]},
+    {"canonicalId":"ard-alpha","name":"ARD alpha","aliases":["ARD-alpha"],"piconId":null,"tvgIds":["ARD.alpha.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"ARD.alpha.de","priority":1,"enabled":true}]},
+    {"canonicalId":"one-de","name":"ONE","aliases":["ARD ONE"],"piconId":null,"tvgIds":["ONE.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"ONE.de","priority":1,"enabled":true}]},
+    {"canonicalId":"phoenix-de","name":"phoenix","aliases":["PHOENIX"],"piconId":null,"tvgIds":["PHOENIX.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"PHOENIX.de","priority":1,"enabled":true}]},
+    {"canonicalId":"tagesschau24","name":"tagesschau24","aliases":["Tagesschau 24"],"piconId":null,"tvgIds":["tagesschau24.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"tagesschau24.de","priority":1,"enabled":true}]},
+    {"canonicalId":"zdfneo","name":"ZDFneo","aliases":["ZDF Neo"],"piconId":null,"tvgIds":["ZDFneo.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"ZDFneo.de","priority":1,"enabled":true}]},
+    {"canonicalId":"zdfinfo","name":"ZDFinfo","aliases":["ZDF Info"],"piconId":null,"tvgIds":["ZDFinfo.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"ZDFinfo.de","priority":1,"enabled":true}]},
+    {"canonicalId":"kika","name":"KiKA","aliases":["Kinderkanal"],"piconId":null,"tvgIds":["KIKA.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"KIKA.de","priority":1,"enabled":true}]},
+
+    {"canonicalId":"br-de","name":"BR Fernsehen","aliases":["BR","Bayerisches Fernsehen"],"piconId":null,"tvgIds":["BR.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"BR.de","priority":1,"enabled":true}]},
+    {"canonicalId":"hr-de","name":"hr-fernsehen","aliases":["HR"],"piconId":null,"tvgIds":["HR.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"HR.de","priority":1,"enabled":true}]},
+    {"canonicalId":"mdr-de","name":"MDR Fernsehen","aliases":["MDR"],"piconId":null,"tvgIds":["MDR.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"MDR.de","priority":1,"enabled":true}]},
+    {"canonicalId":"ndr-de","name":"NDR Fernsehen","aliases":["NDR"],"piconId":null,"tvgIds":["NDR.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"NDR.de","priority":1,"enabled":true}]},
+    {"canonicalId":"rbb-de","name":"rbb Fernsehen","aliases":["RBB"],"piconId":null,"tvgIds":["RBB.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"RBB.de","priority":1,"enabled":true}]},
+    {"canonicalId":"wdr-de","name":"WDR Fernsehen","aliases":["WDR"],"piconId":null,"tvgIds":["WDR.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"WDR.de","priority":1,"enabled":true}]},
+
+    {"canonicalId":"welt-de","name":"WELT","aliases":["N24","Welt TV"],"piconId":null,"tvgIds":["WELT.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"WELT.de","priority":1,"enabled":true}]},
+    {"canonicalId":"ntv-de","name":"ntv","aliases":["n-tv"],"piconId":null,"tvgIds":["ntv.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"ntv.de","priority":1,"enabled":true}]},
+    {"canonicalId":"n24-doku","name":"N24 Doku","aliases":["N24 DOKU"],"piconId":null,"tvgIds":["N24.DOKU.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"N24.DOKU.de","priority":1,"enabled":true}]},
+
+    {"canonicalId":"dmax-de","name":"DMAX","aliases":["DMAX Germany"],"piconId":null,"tvgIds":["DMAX.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"DMAX.de","priority":1,"enabled":true}]},
+    {"canonicalId":"discovery-de","name":"Discovery Channel","aliases":["Discovery HD Germany"],"piconId":null,"tvgIds":["Discovery.HD.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"Discovery.HD.de","priority":1,"enabled":true}]},
+    {"canonicalId":"national-geographic-de","name":"National Geographic","aliases":["Nat Geo Germany"],"piconId":null,"tvgIds":["Nat.Geo.HD.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"Nat.Geo.HD.de","priority":1,"enabled":true}]},
+    {"canonicalId":"nat-geo-wild-de","name":"National Geographic Wild","aliases":["Nat Geo Wild Germany"],"piconId":null,"tvgIds":["NAT.GEO.WILD.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"NAT.GEO.WILD.de","priority":1,"enabled":true}]},
+    {"canonicalId":"history-de","name":"The HISTORY Channel","aliases":["History Germany"],"piconId":null,"tvgIds":["The.HISTORY.Channel.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"The.HISTORY.Channel.de","priority":1,"enabled":true}]},
+    {"canonicalId":"tlc-de","name":"TLC","aliases":["TLC Germany"],"piconId":null,"tvgIds":["TLC.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"TLC.de","priority":1,"enabled":true}]},
+    {"canonicalId":"comedy-central-de","name":"Comedy Central","aliases":["Comedy Central Germany"],"piconId":null,"tvgIds":["Comedy.Central.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"Comedy.Central.de","priority":1,"enabled":true}]},
+    {"canonicalId":"syfy-de","name":"Syfy","aliases":["SyFy Germany"],"piconId":null,"tvgIds":["SyFy.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"SyFy.de","priority":1,"enabled":true}]},
+
+    {"canonicalId":"sport1-de","name":"SPORT1","aliases":["Sport 1 Germany"],"piconId":null,"tvgIds":["SPORT1.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"SPORT1.de","priority":1,"enabled":true}]},
+    {"canonicalId":"eurosport-1-de","name":"Eurosport 1","aliases":["Eurosport 1 Germany"],"piconId":null,"tvgIds":["Eurosport.1.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"Eurosport.1.de","priority":1,"enabled":true}]},
+    {"canonicalId":"eurosport-2-de","name":"Eurosport 2","aliases":["Eurosport 2 Germany"],"piconId":null,"tvgIds":["Eurosport.2.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"Eurosport.2.de","priority":1,"enabled":true}]},
+    {"canonicalId":"sky-sport-news-de","name":"Sky Sport News","aliases":["Sky Sport News HD"],"piconId":null,"tvgIds":["Sky.Sport.News.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"Sky.Sport.News.de","priority":1,"enabled":true}]},
+    {"canonicalId":"sky-sport-f1-de","name":"Sky Sport F1","aliases":["Sky F1 Germany"],"piconId":null,"tvgIds":["Sky.Sport.F1.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"Sky.Sport.F1.de","priority":1,"enabled":true}]},
+    {"canonicalId":"sky-sport-premier-league-de","name":"Sky Sport Premier League","aliases":["Sky Premier League Germany"],"piconId":null,"tvgIds":["Sky.Sport.Premier.League.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"Sky.Sport.Premier.League.de","priority":1,"enabled":true}]},
+    {"canonicalId":"sky-sport-bundesliga-de","name":"Sky Sport Bundesliga","aliases":["Sky Bundesliga"],"piconId":null,"tvgIds":["Sky.Sport.Bundesliga.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"Sky.Sport.Bundesliga.de","priority":1,"enabled":true}]}
   ]
 }
