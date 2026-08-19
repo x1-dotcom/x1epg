@@ -4,6 +4,42 @@
   "country": "PT",
   "timezone": "Europe/Lisbon",
   "languages": ["pt-PT"],
-  "sources": [],
-  "channels": []
+  "sources": [
+    {
+      "sourceId": "epgshare01-pt1",
+      "type": "xmltv-gzip",
+      "url": "https://epgshare01.online/epgshare01/epg_ripper_PT1.xml.gz",
+      "channelListUrl": "https://epgshare01.online/epgshare01/epg_ripper_PT1.txt",
+      "ingestEnabled": true,
+      "publishAllowed": false,
+      "rightsStatus": "public-feed-no-license-found",
+      "notes": "Publicly downloadable feed. No explicit redistribution licence has been proven, so X1 may ingest for validation but automated public republication remains blocked."
+    }
+  ],
+  "channels": [
+    {"canonicalId":"rtp-1","name":"RTP 1","aliases":["RTP1","RTP 1 HD"],"piconId":"rtp-1","tvgIds":["RTP.1.HD.pt"],"sourceChannelId":"RTP.1.HD.pt"},
+    {"canonicalId":"rtp-2","name":"RTP 2","aliases":["RTP2","RTP 2 HD"],"piconId":"rtp-2","tvgIds":["RTP.2.HD.pt"],"sourceChannelId":"RTP.2.HD.pt"},
+    {"canonicalId":"rtp-noticias","name":"RTP Notícias","aliases":["RTP3","RTP 3","RTP Notícias HD"],"piconId":"rtp-noticias","tvgIds":["RTP.Notícias.HD.pt"],"sourceChannelId":"RTP.Notícias.HD.pt"},
+    {"canonicalId":"rtp-memoria","name":"RTP Memória","aliases":["RTP Memoria"],"piconId":"rtp-memoria","tvgIds":["RTP.Memória.pt"],"sourceChannelId":"RTP.Memória.pt"},
+    {"canonicalId":"rtp-africa","name":"RTP África","aliases":["RTP Africa"],"piconId":"rtp-africa","tvgIds":["RTP.África.pt"],"sourceChannelId":"RTP.África.pt"},
+    {"canonicalId":"rtp-acores","name":"RTP Açores","aliases":["RTP Acores"],"piconId":"rtp-acores","tvgIds":["RTP.Açores.pt"],"sourceChannelId":"RTP.Açores.pt"},
+    {"canonicalId":"rtp-madeira","name":"RTP Madeira","aliases":[],"piconId":"rtp-madeira","tvgIds":["RTP.Madeira.pt"],"sourceChannelId":"RTP.Madeira.pt"},
+    {"canonicalId":"sic","name":"SIC","aliases":["SIC HD"],"piconId":null,"tvgIds":["SIC.HD.pt","SIC.pt"],"sourceChannelId":"SIC.HD.pt"},
+    {"canonicalId":"sic-noticias","name":"SIC Notícias","aliases":["SIC Noticias","SIC Notícias HD"],"piconId":"sic-noticias","tvgIds":["SIC.Notícias.HD.pt","SIC.Notícias.pt"],"sourceChannelId":"SIC.Notícias.HD.pt"},
+    {"canonicalId":"sic-mulher","name":"SIC Mulher","aliases":["SIC Mulher HD"],"piconId":"sic-mulher","tvgIds":["SIC.Mulher.HD.pt"],"sourceChannelId":"SIC.Mulher.HD.pt"},
+    {"canonicalId":"sic-caras","name":"SIC Caras","aliases":["SIC Caras HD"],"piconId":"sic-caras","tvgIds":["SIC.Caras.HD.pt"],"sourceChannelId":"SIC.Caras.HD.pt"},
+    {"canonicalId":"sic-radical","name":"SIC Radical","aliases":["SIC Radical HD"],"piconId":null,"tvgIds":["SIC.Radical.HD.pt"],"sourceChannelId":"SIC.Radical.HD.pt"},
+    {"canonicalId":"tvi","name":"TVI","aliases":["TVI HD"],"piconId":"tvi","tvgIds":["TVI.HD.pt"],"sourceChannelId":"TVI.HD.pt"},
+    {"canonicalId":"tvi-ficcao","name":"TVI Ficção","aliases":["TVI Ficcao"],"piconId":"tvi-ficcao","tvgIds":["tvi.ficcao.pt"],"sourceChannelId":"tvi.ficcao.pt"},
+    {"canonicalId":"cnn-portugal","name":"CNN Portugal","aliases":["CNN Portugal HD"],"piconId":"cnn-portugal","tvgIds":["CNN.Portugal.HD.pt"],"sourceChannelId":"CNN.Portugal.HD.pt"},
+    {"canonicalId":"cmtv","name":"CMTV","aliases":["CMTV HD","Correio da Manhã TV"],"piconId":null,"tvgIds":["CMTV.HD.pt"],"sourceChannelId":"CMTV.HD.pt"},
+    {"canonicalId":"sport-tv-plus","name":"SPORT TV+","aliases":["Sport TV+","SPORT.TV+"],"piconId":"sport-tv-plus","tvgIds":["SPORT.TV+.HD.pt"],"sourceChannelId":"SPORT.TV+.HD.pt"},
+    {"canonicalId":"sport-tv-1","name":"SPORT TV 1","aliases":["Sport TV1","SPORT TV1 HD"],"piconId":"sport-tv-1","tvgIds":["SPORT.TV1.HD.pt"],"sourceChannelId":"SPORT.TV1.HD.pt"},
+    {"canonicalId":"sport-tv-2","name":"SPORT TV 2","aliases":["Sport TV2","SPORT TV2 HD"],"piconId":"sport-tv-2","tvgIds":["SPORT.TV2.HD.pt"],"sourceChannelId":"SPORT.TV2.HD.pt"},
+    {"canonicalId":"sport-tv-3","name":"SPORT TV 3","aliases":["Sport TV3","SPORT TV3 HD"],"piconId":"sport-tv-3","tvgIds":["SPORT.TV3.HD.pt"],"sourceChannelId":"SPORT.TV3.HD.pt"},
+    {"canonicalId":"sport-tv-4","name":"SPORT TV 4","aliases":["Sport TV4","SPORT TV4 HD"],"piconId":"sport-tv-4","tvgIds":["SPORT.TV4.HD.pt"],"sourceChannelId":"SPORT.TV4.HD.pt"},
+    {"canonicalId":"sport-tv-5","name":"SPORT TV 5","aliases":["Sport TV5","SPORT TV5 HD"],"piconId":"sport-tv-5","tvgIds":["SPORT.TV5.HD.pt"],"sourceChannelId":"SPORT.TV5.HD.pt"},
+    {"canonicalId":"sport-tv-6","name":"SPORT TV 6","aliases":["Sport TV6","SPORT TV6 HD"],"piconId":"sport-tv-6","tvgIds":["Sport.TV.6.HD.pt"],"sourceChannelId":"Sport.TV.6.HD.pt"},
+    {"canonicalId":"canal-11","name":"Canal 11","aliases":["Canal 11 HD"],"piconId":null,"tvgIds":["Canal.11.HD.pt"],"sourceChannelId":"Canal.11.HD.pt"}
+  ]
 }
