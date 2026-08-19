@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="420" viewBox="0 0 1600 420" role="img" aria-label="X1 EPG trust chain">
+<rect width="1600" height="420" rx="22" fill="#070c10"/>
+<text x="72" y="66" fill="#eefaff" font-family="Arial,Helvetica,sans-serif" font-size="30" font-weight="800">X1 // TRUST & PUBLICATION BOUNDARY</text>
+<g font-family="Arial,Helvetica,sans-serif">
+  <rect x="72" y="126" width="700" height="210" rx="14" fill="#0b1419" stroke="#18e8ff"/>
+  <text x="108" y="170" fill="#18e8ff" font-size="18" font-weight="700">TECHNICAL AUTHORITY</text>
+  <text x="108" y="213" fill="#f1fbff" font-size="29" font-weight="800">INGEST · VALIDATE · LKG · PROVENANCE</text>
+  <text x="108" y="258" fill="#8ea5b0" font-size="19">Can prove what was fetched, normalized and accepted as the last-known-good state.</text>
+  <text x="108" y="298" fill="#8ea5b0" font-size="19">This does not grant redistribution rights.</text>
+  <rect x="828" y="126" width="700" height="210" rx="14" fill="#0b1419" stroke="#4d7cff"/>
+  <text x="864" y="170" fill="#8fa8ff" font-size="18" font-weight="700">PUBLICATION AUTHORITY</text>
+  <text x="864" y="213" fill="#f3f5ff" font-size="29" font-weight="800">RIGHTS VERIFIED OR PUBLISH = OFF</text>
+  <text x="864" y="258" fill="#9fa9ca" font-size="19">Publicly reachable data is not automatically licensed for redistribution.</text>
+  <text x="864" y="298" fill="#9fa9ca" font-size="19">Rights remain a separate fail-closed gate.</text>
+</g>
+<text x="72" y="380" fill="#18e8ff" font-family="Arial,Helvetica,sans-serif" font-size="17" letter-spacing="4">TECHNICAL QUALITY ≠ SOURCE APPROVAL ≠ REDISTRIBUTION RIGHTS</text>
+</svg>
