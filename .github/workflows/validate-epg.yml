@@ -29,8 +29,11 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Validate canonical catalog
-        run: python tools/validate_catalog.py
-
       - name: Validate source manifests and rights gates
         run: python tools/validate_sources.py
+
+      - name: Build canonical catalog from approved manifests
+        run: python tools/build_index.py
+
+      - name: Validate canonical catalog
+        run: python tools/validate_catalog.py
