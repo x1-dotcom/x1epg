@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-19T12:51:00+02:00",
+  "generatedAt": "2026-08-19T12:56:00+02:00",
   "candidates": [
     {
       "candidateId": "fonz-epg-tv-portuguesa",
@@ -10,9 +10,23 @@
       "repository": "https://github.com/f0nZ/epg-tv-portuguesa",
       "rightsStatus": "public-feed-no-license-found",
       "publishAllowed": false,
+      "auditEnabled": true,
       "maxProgrammeAgeHours": 48,
       "promotionPolicy": "Promote to sources/ only if runtime audit proves current programme data, stable fetchability, useful channel coverage, and redistribution rights are explicitly verified before public publication.",
       "notes": "Public Portuguese XMLTV project evaluated as a secondary-source candidate. Repository exposes guide.xml for IPTV use, but no repository licence was found. Observed programme data in the current file includes 2021 timestamps, so freshness must be measured and stale data must never enter fallback arbitration."
+    },
+    {
+      "candidateId": "epg-pw-global",
+      "country": "GLOBAL",
+      "type": "xmltv-gzip",
+      "url": "https://epg.pw/xmltv/epg.xml.gz",
+      "website": "https://epg.pw/xmltv.html?lang=en",
+      "rightsStatus": "permission-required",
+      "publishAllowed": false,
+      "auditEnabled": false,
+      "maxProgrammeAgeHours": 48,
+      "promotionPolicy": "Do not ingest, mirror, retransmit or use as a commercial X1 fallback unless EPG.PW grants explicit permission compatible with X1 commercial use and redistribution.",
+      "notes": "EPG.PW publishes standard XMLTV feeds and current programme pages, but its Terms of Service limit site access/use to personal non-commercial purposes and prohibit publishing, retransmitting or using the service through external servers unless expressly authorised. Candidate is therefore legally blocked for the commercial X1 EPG pipeline without explicit permission."
     }
   ]
 }
