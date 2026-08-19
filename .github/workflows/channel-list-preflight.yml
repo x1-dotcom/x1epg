@@ -1,0 +1,83 @@
+name: X1 EPG Channel List Preflight
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '8 */6 * * *'
+  push:
+    branches:
+      - main
+    paths:
+      - 'sources/**'
+      - 'tools/validate_channel_lists.py'
+      - 'tests/test_validate_channel_lists.py'
+      - '.github/workflows/channel-list-preflight.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: x1-epg-channel-list-preflight-main
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run deterministic tests
+        run: python -m unittest tests.test_validate_channel_lists -v
+
+      - name: Validate source manifests
+        run: python tools/validate_sources.py
+
+      - name: Validate exact upstream channel IDs
+        id: preflight
+        continue-on-error: true
+        run: python tools/validate_channel_lists.py
+
+      - name: Show missing mappings
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('data/channel-list-validation.json')
+          if not p.exists():
+              print('channel-list-validation.json missing')
+              raise SystemExit(1)
+          r = json.load(p.open(encoding='utf-8'))
+          for row in r.get('sources', []):
+              print(row['sourceId'], row['status'], f"{row.get('mappedPresent',0)}/{row.get('mappedExpected',0)}")
+              for cid, canonical in zip(row.get('mappedMissing', []), row.get('missingCanonicalIds', [])):
+                  print('  MISSING', canonical, '=>', cid)
+          PY
+
+      - name: Persist preflight report
+        if: always()
+        run: |
+          if [ ! -f data/channel-list-validation.json ]; then
+            exit 1
+          fi
+          git config user.name 'x1-epg-bot'
+          git config user.email 'x1-epg-bot@users.noreply.github.com'
+          git add data/channel-list-validation.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Refresh X1 EPG upstream channel-list validation'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+
+      - name: Fail on missing upstream mappings
+        if: steps.preflight.outcome == 'failure'
+        run: exit 1
