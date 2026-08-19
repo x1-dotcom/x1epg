@@ -11,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 KEYS = ROOT / "keys"
 KEYRING = KEYS / "keyring.json"
+SIGNING_PUBLIC_KEY = KEYS / "x1-epg-ed25519-public.pem"
 KEY_ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 HEX64 = re.compile(r"^[0-9a-f]{64}$")
 
@@ -115,13 +116,37 @@ def validate_keyring(payload: dict, root: Path = ROOT) -> dict:
     }
 
 
+def verify_signing_key_alignment(payload: dict | None = None, root: Path = ROOT) -> dict:
+    payload = load_keyring(root / "keys" / "keyring.json") if payload is None else payload
+    result = validate_keyring(payload, root)
+    if result["keyCount"] == 0:
+        if (root / "keys" / "x1-epg-ed25519-public.pem").exists():
+            raise RuntimeError("legacy signing public key exists but keyring has no active authority")
+        return {**result, "signingPublicKeyConfigured": False, "signingKeyAligned": True}
+
+    active_id = result["activeKeyId"]
+    active = next(row for row in payload["keys"] if row["keyId"] == active_id)
+    signing_public = root / "keys" / "x1-epg-ed25519-public.pem"
+    if not signing_public.exists():
+        raise RuntimeError("active keyring authority exists but signing public key alias is missing")
+    alias_fp = public_key_fingerprint(signing_public)
+    if alias_fp != active["fingerprintSha256"]:
+        raise RuntimeError("signing public key alias does not match active keyring authority")
+    return {**result, "signingPublicKeyConfigured": True, "signingKeyAligned": True, "activeFingerprintSha256": alias_fp}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=("verify", "status"))
+    parser.add_argument("command", choices=("verify", "status", "verify-signing-key"))
     args = parser.parse_args()
-    result = validate_keyring(load_keyring())
+    if args.command == "verify-signing-key":
+        result = verify_signing_key_alignment()
+    else:
+        result = validate_keyring(load_keyring())
     if args.command == "status":
         print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+    elif args.command == "verify-signing-key":
+        print(f"Signing key alignment: PASS configured={result['signingPublicKeyConfigured']} active={result['activeKeyId']}")
     else:
         print(f"Keyring: PASS keys={result['keyCount']} transitions={result['transitionCount']} active={result['activeKeyId']}")
 
