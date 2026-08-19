@@ -33,6 +33,9 @@ jobs:
       - name: Run deterministic unit tests
         run: python -m unittest discover -s tests -v
 
+      - name: Verify persisted integrity chain
+        run: python tools/integrity_chain.py verify
+
       - name: Validate source manifests and rights gates
         run: python tools/validate_sources.py
 
