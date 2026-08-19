@@ -37,6 +37,11 @@ jobs:
       - name: Verify integrity chain
         run: python tools/integrity_chain.py verify
 
+      - name: Verify Ed25519 keyring authority
+        run: |
+          python tools/key_rotation.py verify
+          python tools/key_rotation.py verify-signing-key
+
       - name: Verify Ed25519 signed head when present
         shell: bash
         run: |
@@ -46,6 +51,16 @@ jobs:
             python tools/signed_provenance.py verify
           else
             echo 'No signed integrity head is committed yet; P6.9 activation remains pending.'
+          fi
+
+      - name: Verify external anchor evidence when present
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f data/external-anchor-request.json ]; then
+            python tools/external_anchor.py verify
+          else
+            echo 'No external anchor evidence is committed yet; P6.10 external activation remains pending.'
           fi
 
       - name: Validate source manifests and rights gates
