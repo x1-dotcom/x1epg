@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import gzip
+import io
 import json
 import re
 import urllib.request
@@ -11,36 +13,55 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "data" / "source-candidates.json"
 OUT = ROOT / "data" / "source-candidate-report.json"
-MAX_BYTES = 50 * 1024 * 1024
+MAX_COMPRESSED_BYTES = 50 * 1024 * 1024
+MAX_XML_BYTES = 250 * 1024 * 1024
 UA = "X1-EPG/1.0 (+https://github.com/x1-dotcom/x1epg)"
 DATE_RE = re.compile(r"^(\d{14})")
 
 
 def fetch(url: str) -> bytes:
-    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/xml,text/xml,*/*"})
+    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/xml,text/xml,application/gzip,*/*"})
     with urllib.request.urlopen(req, timeout=45) as resp:
-        data = resp.read(MAX_BYTES + 1)
-    if len(data) > MAX_BYTES:
-        raise RuntimeError("candidate exceeds safety limit")
+        data = resp.read(MAX_COMPRESSED_BYTES + 1)
+    if len(data) > MAX_COMPRESSED_BYTES:
+        raise RuntimeError("candidate exceeds compressed safety limit")
+    return data
+
+
+def decode(candidate_type: str, data: bytes) -> bytes:
+    if candidate_type == "xmltv-gzip":
+        with gzip.GzipFile(fileobj=io.BytesIO(data), mode="rb") as fh:
+            xml = fh.read(MAX_XML_BYTES + 1)
+        if len(xml) > MAX_XML_BYTES:
+            raise RuntimeError("candidate exceeds uncompressed XML safety limit")
+        return xml
+    if candidate_type != "xmltv":
+        raise RuntimeError(f"unsupported candidate type: {candidate_type}")
+    if len(data) > MAX_XML_BYTES:
+        raise RuntimeError("candidate XML exceeds safety limit")
     return data
 
 
 def parse_xmltv(data: bytes) -> tuple[int, int, datetime | None]:
-    root = ET.fromstring(data)
-    if root.tag != "tv":
-        raise RuntimeError("root element is not <tv>")
-    channels = root.findall("channel")
-    programmes = root.findall("programme")
+    channels = 0
+    programmes = 0
     newest: datetime | None = None
-    for p in programmes:
-        raw = p.attrib.get("stop") or p.attrib.get("start") or ""
-        m = DATE_RE.match(raw)
-        if not m:
-            continue
-        dt = datetime.strptime(m.group(1), "%Y%m%d%H%M%S").replace(tzinfo=timezone.utc)
-        if newest is None or dt > newest:
-            newest = dt
-    return len(channels), len(programmes), newest
+    try:
+        for event, elem in ET.iterparse(io.BytesIO(data), events=("end",)):
+            if elem.tag == "channel":
+                channels += 1
+            elif elem.tag == "programme":
+                programmes += 1
+                raw = elem.attrib.get("stop") or elem.attrib.get("start") or ""
+                m = DATE_RE.match(raw)
+                if m:
+                    dt = datetime.strptime(m.group(1), "%Y%m%d%H%M%S").replace(tzinfo=timezone.utc)
+                    if newest is None or dt > newest:
+                        newest = dt
+            elem.clear()
+    except ET.ParseError as exc:
+        raise RuntimeError(f"invalid XMLTV: {exc}") from exc
+    return channels, programmes, newest
 
 
 def main() -> None:
@@ -52,6 +73,7 @@ def main() -> None:
             "candidateId": c["candidateId"],
             "country": c["country"],
             "url": c["url"],
+            "type": c.get("type"),
             "rightsStatus": c["rightsStatus"],
             "publishAllowed": c["publishAllowed"],
             "auditEnabled": c.get("auditEnabled", True),
@@ -66,12 +88,15 @@ def main() -> None:
             continue
 
         try:
-            data = fetch(c["url"])
-            channel_count, programme_count, newest = parse_xmltv(data)
+            raw = fetch(c["url"])
+            xml = decode(c.get("type", "xmltv"), raw)
+            channel_count, programme_count, newest = parse_xmltv(xml)
             age_hours = None if newest is None else round((now - newest).total_seconds() / 3600, 2)
             fresh = newest is not None and age_hours <= c.get("maxProgrammeAgeHours", 48)
             rights_ok = c.get("publishAllowed") is True and c.get("rightsStatus") == "verified-redistributable"
-            if not fresh:
+            if programme_count == 0:
+                decision = "REJECT_NO_PROGRAMMES"
+            elif not fresh:
                 decision = "REJECT_STALE"
             elif not rights_ok:
                 decision = "QUALIFIED_INGEST_ONLY_RIGHTS_BLOCKED"
@@ -79,7 +104,8 @@ def main() -> None:
                 decision = "QUALIFIED_FOR_PROMOTION"
             row.update({
                 "status": "OK",
-                "bytes": len(data),
+                "compressedBytes": len(raw),
+                "xmlBytes": len(xml),
                 "channelCount": channel_count,
                 "programmeCount": programme_count,
                 "newestProgramme": newest.isoformat() if newest else None,
@@ -96,7 +122,7 @@ def main() -> None:
     OUT.write_text(json.dumps({
         "schemaVersion": 1,
         "generatedAt": now.isoformat(),
-        "policy": "Candidates never become fallback sources automatically. Promotion requires freshness, coverage, stability and explicit rights review. Candidates blocked by terms or permission requirements are not fetched by the automated auditor.",
+        "policy": "Candidates never become fallback sources automatically. Promotion requires freshness, programme presence, coverage, stability and explicit rights review. Candidates blocked by terms or permission requirements are not fetched by the automated auditor.",
         "candidates": rows,
     }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
