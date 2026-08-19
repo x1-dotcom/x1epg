@@ -6,19 +6,20 @@ import io
 import json
 import re
 import unicodedata
-import urllib.request
 import xml.etree.ElementTree as ET
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
+from tools.safe_http import fetch_bounded_https
 from tools.xmltv_time import parse_xmltv_time
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "data" / "source-comparison-report.json"
-UA = "X1-EPG/1.0 (+https://github.com/x1-dotcom/x1epg)"
 MAX_COMPRESSED = 50 * 1024 * 1024
 MAX_XML = 250 * 1024 * 1024
+XML_CONTENT_TYPES = ("application/xml", "text/xml", "text/plain", "application/octet-stream")
+GZIP_CONTENT_TYPES = ("application/gzip", "application/x-gzip", "application/octet-stream")
 
 SOURCES = {
     "epgshare01-es1": {"url": "https://epgshare01.online/epgshare01/epg_ripper_ES1.xml.gz", "gzip": True},
@@ -36,19 +37,22 @@ def normalize(value: str) -> str:
 
 
 def fetch(url: str, gz: bool) -> bytes:
-    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/xml,text/xml,application/gzip,*/*"})
-    with urllib.request.urlopen(req, timeout=60) as response:
-        raw = response.read(MAX_COMPRESSED + 1 if gz else MAX_XML + 1)
+    allowed = GZIP_CONTENT_TYPES if gz else XML_CONTENT_TYPES
+    raw = fetch_bounded_https(
+        url,
+        max_bytes=MAX_COMPRESSED if gz else MAX_XML,
+        timeout=60,
+        accept="application/xml,text/xml,application/gzip,application/octet-stream,*/*",
+        allowed_content_types=allowed,
+        retries=1,
+        max_redirects=3,
+    ).data
     if gz:
-        if len(raw) > MAX_COMPRESSED:
-            raise RuntimeError(f"compressed source exceeds safety limit: {url}")
         with gzip.GzipFile(fileobj=io.BytesIO(raw), mode="rb") as fh:
             data = fh.read(MAX_XML + 1)
         if len(data) > MAX_XML:
             raise RuntimeError(f"decompressed source exceeds safety limit: {url}")
         return data
-    if len(raw) > MAX_XML:
-        raise RuntimeError(f"XML source exceeds safety limit: {url}")
     return raw
 
 
@@ -152,7 +156,7 @@ def main() -> None:
         if winner:
             winners[winner] += 1
         comparisons.append({"canonicalId": channel["canonicalId"], "name": channel["name"], "winnerByTechnicalCoverage": winner, "tie": tie, "sources": source_rows, "rightsDecision": "TECHNICAL_ONLY_NO_AUTOMATIC_PROMOTION_OR_PUBLICATION"})
-    payload = {"schemaVersion": 2, "generatedAt": now.isoformat(), "country": "ES", "policy": "Technical comparison only. Strict timezone-aware XMLTV timestamps are required. Source selection here does not grant redistribution rights and does not mutate approved fallback mappings.", "sourceHealth": source_health, "winnerCounts": dict(winners), "channelsCompared": len(comparisons), "comparisons": comparisons}
+    payload = {"schemaVersion": 3, "generatedAt": now.isoformat(), "country": "ES", "networkPolicy": "HTTPS only; port 443 only; same-host HTTPS redirects only; bounded downloads/decompression; content-type gate; transient retry only.", "policy": "Technical comparison only. Strict timezone-aware XMLTV timestamps are required. Source selection here does not grant redistribution rights and does not mutate approved fallback mappings.", "sourceHealth": source_health, "winnerCounts": dict(winners), "channelsCompared": len(comparisons), "comparisons": comparisons}
     OUT.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"Compared {len(comparisons)} Spanish canonical channels")
     for sid, count in sorted(winners.items()):
