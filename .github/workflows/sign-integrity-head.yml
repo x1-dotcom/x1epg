@@ -1,0 +1,91 @@
+name: Sign X1 EPG Integrity Head
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - Sync X1 EPG Sources
+    types:
+      - completed
+
+permissions:
+  contents: write
+
+concurrency:
+  group: x1-epg-signing-main
+  cancel-in-progress: false
+
+jobs:
+  sign:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      X1_EPG_ED25519_PRIVATE_KEY_PEM: ${{ secrets.X1_EPG_ED25519_PRIVATE_KEY_PEM }}
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run deterministic signing tests
+        run: python -m unittest tests.test_signed_provenance -v
+
+      - name: Verify current hash chain before signing
+        run: python tools/integrity_chain.py verify
+
+      - name: Check signing configuration
+        id: signing_config
+        shell: bash
+        run: |
+          set -euo pipefail
+          public=0
+          secret=0
+          [ -f keys/x1-epg-ed25519-public.pem ] && public=1
+          [ -n "${X1_EPG_ED25519_PRIVATE_KEY_PEM:-}" ] && secret=1
+
+          if [ "$public" -ne "$secret" ]; then
+            echo 'Ed25519 signing is partially configured; refusing to continue.'
+            echo 'Both keys/x1-epg-ed25519-public.pem and secret X1_EPG_ED25519_PRIVATE_KEY_PEM are required.'
+            exit 1
+          fi
+
+          if [ "$public" -eq 0 ]; then
+            echo 'configured=false' >> "$GITHUB_OUTPUT"
+            echo 'Ed25519 signing NOT CONFIGURED. No signature will be fabricated.'
+          else
+            echo 'configured=true' >> "$GITHUB_OUTPUT"
+            python tools/signed_provenance.py status
+          fi
+
+      - name: Sign current integrity head
+        if: steps.signing_config.outputs.configured == 'true'
+        run: python tools/signed_provenance.py sign
+
+      - name: Verify Ed25519 signature
+        if: steps.signing_config.outputs.configured == 'true'
+        run: python tools/signed_provenance.py verify
+
+      - name: Persist signed integrity head
+        if: steps.signing_config.outputs.configured == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f data/signed-integrity-head.json
+          git config user.name 'x1-epg-signing-bot'
+          git config user.email 'x1-epg-signing-bot@users.noreply.github.com'
+          git add data/signed-integrity-head.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Sign X1 EPG integrity head with Ed25519'
+            git pull --rebase origin main
+            python tools/integrity_chain.py verify
+            python tools/signed_provenance.py verify
+            git push origin HEAD:main
+          fi
