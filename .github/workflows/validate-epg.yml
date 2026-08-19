@@ -1,0 +1,51 @@
+name: Validate X1 EPG
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'data/**'
+      - 'sources/**'
+      - 'tools/**'
+      - '.github/workflows/validate-epg.yml'
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate canonical catalog
+        run: python tools/validate_catalog.py
+
+      - name: Validate source manifest JSON
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          for path in sorted(Path('sources').glob('*.json')):
+              payload = json.loads(path.read_text(encoding='utf-8'))
+              if payload.get('schemaVersion') != 1:
+                  raise SystemExit(f'{path}: schemaVersion must be 1')
+              if not payload.get('country'):
+                  raise SystemExit(f'{path}: country is required')
+              if not isinstance(payload.get('sources'), list):
+                  raise SystemExit(f'{path}: sources must be an array')
+              if not isinstance(payload.get('channels'), list):
+                  raise SystemExit(f'{path}: channels must be an array')
+              print(f'{path}: OK')
+          PY
