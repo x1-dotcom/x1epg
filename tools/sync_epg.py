@@ -4,27 +4,32 @@ from __future__ import annotations
 import gzip
 import io
 import json
-import urllib.request
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
 
+from tools.safe_http import fetch_bounded_https
 from tools.xmltv_time import parse_xmltv_time
 
 ROOT = Path(__file__).resolve().parents[1]
 MAX_COMPRESSED = 50 * 1024 * 1024
 MAX_UNCOMPRESSED = 250 * 1024 * 1024
 DEFAULT_FRESHNESS_HOURS = 48
-UA = "X1-EPG/1.0 (+https://github.com/x1-dotcom/x1epg)"
+XML_CONTENT_TYPES = ("application/xml", "text/xml", "text/plain", "application/octet-stream")
+GZIP_CONTENT_TYPES = ("application/gzip", "application/x-gzip", "application/octet-stream")
 
 
-def fetch_bytes(url: str) -> bytes:
-    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/xml,text/xml,application/gzip,*/*"})
-    with urllib.request.urlopen(req, timeout=45) as resp:
-        data = resp.read(MAX_COMPRESSED + 1)
-    if len(data) > MAX_COMPRESSED:
-        raise RuntimeError("compressed source exceeds safety limit")
-    return data
+def fetch_bytes(url: str, source_type: str) -> bytes:
+    allowed = GZIP_CONTENT_TYPES if source_type == "xmltv-gzip" else XML_CONTENT_TYPES
+    return fetch_bounded_https(
+        url,
+        max_bytes=MAX_COMPRESSED,
+        timeout=45,
+        accept="application/xml,text/xml,application/gzip,application/octet-stream,*/*",
+        allowed_content_types=allowed,
+        retries=1,
+        max_redirects=3,
+    ).data
 
 
 def decode_source(source_type: str, payload: bytes) -> bytes:
@@ -110,7 +115,7 @@ def main() -> None:
             try:
                 if not mappings:
                     raise RuntimeError("ingest-enabled source has zero enabled canonical mappings")
-                compressed = fetch_bytes(source["url"])
+                compressed = fetch_bytes(source["url"], source["type"])
                 xml = decode_source(source["type"], compressed)
                 source_channels, programme_counts, newest_by_channel, malformed = validate_xmltv(xml, set(mappings))
                 mapped_present = sorted(cid for cid in mappings if cid in source_channels)
@@ -137,7 +142,7 @@ def main() -> None:
                 failed = True
                 row.update({"status": "FAILED", "error": str(exc), "publicationDecision": "BLOCKED"})
             reports.append(row)
-    output = {"schemaVersion": 2, "generatedAt": now.isoformat(), "mode": "INGEST_VALIDATE_ONLY", "policy": "X1 requires explicit source mappings, timezone-aware XMLTV timestamps, mapped programme presence and freshness. X1 never republishes an upstream EPG unless publishAllowed=true and rightsStatus=verified-redistributable.", "sources": reports}
+    output = {"schemaVersion": 3, "generatedAt": now.isoformat(), "mode": "INGEST_VALIDATE_ONLY", "networkPolicy": "HTTPS only; port 443 only; same-host HTTPS redirects only; bounded downloads; bounded decompression; content-type gate; transient retry only.", "policy": "X1 requires explicit source mappings, timezone-aware XMLTV timestamps, mapped programme presence and freshness. X1 never republishes an upstream EPG unless publishAllowed=true and rightsStatus=verified-redistributable.", "sources": reports}
     (ROOT / "data" / "sync-report.json").write_text(json.dumps(output, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     for row in reports:
         print(f"{row['sourceId']}: {row['status']} present={row.get('mappedPresent', 0)}/{row.get('mappedExpected', 0)} programmes={row.get('mappedProgrammeCount', 0)} fresh={row.get('fresh')} publish={row['publicationDecision']}")
