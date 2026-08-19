@@ -22,6 +22,8 @@ jobs:
     timeout-minutes: 10
     env:
       X1_EPG_ED25519_PRIVATE_KEY_PEM: ${{ secrets.X1_EPG_ED25519_PRIVATE_KEY_PEM }}
+      X1_EPG_EXTERNAL_ANCHOR_URL: ${{ secrets.X1_EPG_EXTERNAL_ANCHOR_URL }}
+      X1_EPG_EXTERNAL_ANCHOR_TOKEN: ${{ secrets.X1_EPG_EXTERNAL_ANCHOR_TOKEN }}
 
     steps:
       - name: Checkout main
@@ -35,11 +37,14 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Run deterministic signing tests
-        run: python -m unittest tests.test_signed_provenance -v
+      - name: Run deterministic signing and anchor tests
+        run: python -m unittest tests.test_signed_provenance tests.test_key_rotation tests.test_external_anchor -v
 
       - name: Verify current hash chain before signing
         run: python tools/integrity_chain.py verify
+
+      - name: Verify keyring authority
+        run: python tools/key_rotation.py verify
 
       - name: Check signing configuration
         id: signing_config
@@ -58,9 +63,11 @@ jobs:
           fi
 
           if [ "$public" -eq 0 ]; then
+            python tools/key_rotation.py verify-signing-key
             echo 'configured=false' >> "$GITHUB_OUTPUT"
             echo 'Ed25519 signing NOT CONFIGURED. No signature will be fabricated.'
           else
+            python tools/key_rotation.py verify-signing-key
             echo 'configured=true' >> "$GITHUB_OUTPUT"
             python tools/signed_provenance.py status
           fi
@@ -73,19 +80,58 @@ jobs:
         if: steps.signing_config.outputs.configured == 'true'
         run: python tools/signed_provenance.py verify
 
-      - name: Persist signed integrity head
+      - name: Build external anchor request
+        if: steps.signing_config.outputs.configured == 'true'
+        run: |
+          python tools/external_anchor.py build
+          python tools/external_anchor.py verify
+
+      - name: Check external anchor configuration
+        id: anchor_config
+        if: steps.signing_config.outputs.configured == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          url=0
+          token=0
+          [ -n "${X1_EPG_EXTERNAL_ANCHOR_URL:-}" ] && url=1
+          [ -n "${X1_EPG_EXTERNAL_ANCHOR_TOKEN:-}" ] && token=1
+          if [ "$url" -ne "$token" ]; then
+            echo 'External anchor is partially configured; both URL and token are required.'
+            exit 1
+          fi
+          if [ "$url" -eq 1 ]; then
+            echo 'configured=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'configured=false' >> "$GITHUB_OUTPUT"
+            echo 'External anchor NOT CONFIGURED. Request remains local evidence only.'
+          fi
+
+      - name: Submit signed head to external anchor
+        if: steps.anchor_config.outputs.configured == 'true'
+        run: |
+          python tools/external_anchor.py submit
+          python tools/external_anchor.py verify
+
+      - name: Persist signed integrity head and anchor evidence
         if: steps.signing_config.outputs.configured == 'true'
         shell: bash
         run: |
           set -euo pipefail
           test -f data/signed-integrity-head.json
+          test -f data/external-anchor-request.json
           git config user.name 'x1-epg-signing-bot'
           git config user.email 'x1-epg-signing-bot@users.noreply.github.com'
-          git add data/signed-integrity-head.json
+          git add data/signed-integrity-head.json data/external-anchor-request.json
+          if [ -f data/external-anchor-receipt.json ]; then
+            git add data/external-anchor-receipt.json
+          fi
           if ! git diff --cached --quiet; then
-            git commit -m 'Sign X1 EPG integrity head with Ed25519'
+            git commit -m 'Sign and anchor X1 EPG integrity head'
             git pull --rebase origin main
             python tools/integrity_chain.py verify
+            python tools/key_rotation.py verify-signing-key
             python tools/signed_provenance.py verify
+            python tools/external_anchor.py verify
             git push origin HEAD:main
           fi
