@@ -10,6 +10,7 @@ on:
     paths:
       - 'sources/**'
       - 'tools/sync_epg.py'
+      - 'tools/plan_merge.py'
       - 'tools/validate_sources.py'
       - '.github/workflows/sync-epg.yml'
 
@@ -23,7 +24,7 @@ concurrency:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -47,7 +48,27 @@ jobs:
         continue-on-error: true
         run: python tools/sync_epg.py
 
-      - name: Persist source health report
+      - name: Build priority/fallback merge plan
+        id: merge
+        if: steps.sync.outcome == 'success'
+        continue-on-error: true
+        run: python tools/plan_merge.py
+
+      - name: Show merge decision
+        if: steps.merge.outcome == 'success'
+        run: |
+          python - <<'PY'
+          import json
+          r = json.load(open('data/merge-report.json', encoding='utf-8'))
+          print('Channels:', r['channelCount'])
+          print('Available:', r['availableCount'])
+          print('Unavailable:', r['unavailableCount'])
+          print('Fallback used:', r['fallbackUsedCount'])
+          print('Selected rights blocked:', r['selectedRightsBlockedCount'])
+          print('Public XMLTV generation allowed:', r['publicGenerationAllowed'])
+          PY
+
+      - name: Persist health and merge reports
         if: always()
         run: |
           if [ ! -f data/sync-report.json ]; then
@@ -57,12 +78,19 @@ jobs:
           git config user.name 'x1-epg-bot'
           git config user.email 'x1-epg-bot@users.noreply.github.com'
           git add data/sync-report.json
+          if [ -f data/merge-report.json ]; then
+            git add data/merge-report.json
+          fi
           if ! git diff --cached --quiet; then
-            git commit -m 'Refresh X1 EPG source health report'
+            git commit -m 'Refresh X1 EPG source and fallback health'
             git pull --rebase origin main
             git push origin HEAD:main
           fi
 
       - name: Fail if live ingestion validation failed
         if: steps.sync.outcome == 'failure'
+        run: exit 1
+
+      - name: Fail if fallback planning found unavailable channels
+        if: steps.sync.outcome == 'success' && steps.merge.outcome == 'failure'
         run: exit 1
