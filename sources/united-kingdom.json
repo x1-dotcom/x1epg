@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "sourceGroup": "united-kingdom",
+  "country": "GB",
+  "timezone": "Europe/London",
+  "languages": ["en-GB"],
+  "sources": [
+    {
+      "sourceId": "epgshare01-uk1",
+      "type": "xmltv-gzip",
+      "url": "https://epgshare01.online/epgshare01/epg_ripper_UK1.xml.gz",
+      "channelListUrl": "https://epgshare01.online/epgshare01/epg_ripper_UK1.txt",
+      "ingestEnabled": true,
+      "publishAllowed": false,
+      "rightsStatus": "public-feed-no-license-found",
+      "notes": "Operational XMLTV source for the United Kingdom. Public redistribution remains blocked until explicit redistribution rights are verified."
+    }
+  ],
+  "channels": [
+    {"canonicalId":"itv1","name":"ITV1","aliases":["ITV","ITV1 HD"],"piconId":"itv1","tvgIds":["ITV1.HD.uk"],"sourceMappings":[{"sourceId":"epgshare01-uk1","channelId":"ITV1.HD.uk","priority":1,"enabled":true}]},
+    {"canonicalId":"channel-4","name":"Channel 4","aliases":["Channel4","C4","Channel 4 HD"],"piconId":"channel-4","tvgIds":["Channel.4.HD.uk"],"sourceMappings":[{"sourceId":"epgshare01-uk1","channelId":"Channel.4.HD.uk","priority":1,"enabled":true}]}
+  ]
+}
