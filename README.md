@@ -28,7 +28,7 @@ Each channel uses a stable `canonicalId`, country, timezone, language, aliases a
 
 A public XMLTV URL is not automatically an approved fallback source. New feeds first enter `data/source-candidates.json` and are audited for fetchability, XML validity, channel/programme volume, newest programme timestamp and freshness. Stale candidates are rejected before they can influence fallback arbitration. Promotion into `sources/` is explicit; there is no automatic promotion.
 
-The first secondary Portugal candidate evaluated is `f0nZ/epg-tv-portuguesa`. It is useful as evidence and channel-ID reference, but the currently observable guide contains programme timestamps from 2021, so X1 treats it as a stale candidate rather than a production fallback. The repository also exposes no explicit licence in the current repository view, therefore public redistribution remains blocked.
+The secondary Portugal candidate `f0nZ/epg-tv-portuguesa` remains useful as channel-ID evidence but the currently observable guide contains 2021 programme timestamps, so X1 treats it as stale rather than a production fallback. EPG.PW remains blocked from automated commercial use pending explicit permission compatible with X1 use.
 
 ## Publication policy
 
@@ -36,4 +36,4 @@ Generated EPG data is only publishable after source validation, channel normaliz
 
 ## Current scope
 
-P1 established the repository contract. P2 added Portugal and live XMLTV ingestion. P3 added multi-source fallback planning and canonical XMLTV generation with rights gates. P4 adds source qualification, freshness auditing and rejection of stale secondary feeds before they can enter the approved fallback pool.
+P1 established the repository contract. P2 added Portugal and live XMLTV ingestion. P3 added multi-source fallback planning and canonical XMLTV generation with rights gates. P4 added source qualification and freshness auditing. P4.1 added EPGShare01 multi-country qualification. P4.2 now defines canonical manifests for Portugal, Spain, France, Germany, Italy, United Kingdom, Switzerland and the Netherlands, aligned with X1 picon IDs where available. Brazil remains candidate-only until its current channel-list/runtime evidence is confirmed.
