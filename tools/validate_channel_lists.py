@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import hashlib
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -13,7 +14,11 @@ MAX_LIST_BYTES = 4 * 1024 * 1024
 TEXT_CONTENT_TYPES = ("text/plain", "application/octet-stream")
 
 
-def fetch_text(url: str) -> str:
+def sha256_bytes(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def fetch_text(url: str) -> tuple[str, bytes]:
     result = fetch_bounded_https(
         url,
         max_bytes=MAX_LIST_BYTES,
@@ -23,7 +28,7 @@ def fetch_text(url: str) -> str:
         retries=1,
         max_redirects=3,
     )
-    return result.data.decode("utf-8-sig", errors="strict")
+    return result.data.decode("utf-8-sig", errors="strict"), result.data
 
 
 def parse_channel_ids(text: str) -> set[str]:
@@ -90,8 +95,11 @@ def main() -> None:
                 failed = True
                 continue
             try:
-                available = parse_channel_ids(fetch_text(list_url))
+                text, raw = fetch_text(list_url)
+                available = parse_channel_ids(text)
                 row = validate_manifest_source(manifest, source, available)
+                row["channelListBytes"] = len(raw)
+                row["channelListSha256"] = sha256_bytes(raw)
                 if row["status"] != "OK":
                     failed = True
             except Exception as exc:
@@ -100,7 +108,7 @@ def main() -> None:
             rows.append(row)
 
     payload = {
-        "schemaVersion": 2,
+        "schemaVersion": 3,
         "generatedAt": datetime.now(timezone.utc).isoformat(),
         "networkPolicy": "HTTPS only; port 443 only; same-host HTTPS redirects only; bounded 4 MiB lists; content-type gate; transient retry only.",
         "policy": "Exact upstream channel-list membership preflight. No fuzzy matching and no automatic mapping mutation.",
