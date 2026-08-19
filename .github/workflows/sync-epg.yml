@@ -9,9 +9,11 @@ on:
       - main
     paths:
       - 'sources/**'
+      - 'data/source-candidates.json'
       - 'tools/sync_epg.py'
       - 'tools/plan_merge.py'
       - 'tools/generate_xmltv.py'
+      - 'tools/audit_source_candidates.py'
       - 'tools/validate_sources.py'
       - '.github/workflows/sync-epg.yml'
 
@@ -41,10 +43,14 @@ jobs:
       - name: Validate catalog
         run: python tools/validate_catalog.py
 
-      - name: Validate source manifests
+      - name: Audit untrusted source candidates
+        continue-on-error: true
+        run: python tools/audit_source_candidates.py
+
+      - name: Validate approved source manifests
         run: python tools/validate_sources.py
 
-      - name: Ingest and validate live XMLTV sources
+      - name: Ingest and validate approved live XMLTV sources
         id: sync
         continue-on-error: true
         run: python tools/sync_epg.py
@@ -71,9 +77,13 @@ jobs:
           print('Fallback used:', r['fallbackUsedCount'])
           print('Selected rights blocked:', r['selectedRightsBlockedCount'])
           print('Public XMLTV generation allowed:', r['publicGenerationAllowed'])
+          if __import__('pathlib').Path('data/source-candidate-report.json').exists():
+              c = json.load(open('data/source-candidate-report.json', encoding='utf-8'))
+              for row in c.get('candidates', []):
+                  print('Candidate:', row['candidateId'], row['decision'], 'newest=', row.get('newestProgramme'))
           PY
 
-      - name: Persist health and merge reports
+      - name: Persist health, candidate and merge reports
         if: always()
         run: |
           if [ ! -f data/sync-report.json ]; then
@@ -83,11 +93,14 @@ jobs:
           git config user.name 'x1-epg-bot'
           git config user.email 'x1-epg-bot@users.noreply.github.com'
           git add data/sync-report.json
+          if [ -f data/source-candidate-report.json ]; then
+            git add data/source-candidate-report.json
+          fi
           if [ -f data/merge-report.json ]; then
             git add data/merge-report.json
           fi
           if ! git diff --cached --quiet; then
-            git commit -m 'Refresh X1 EPG source and fallback health'
+            git commit -m 'Refresh X1 EPG source, candidate and fallback health'
             git pull --rebase origin main
             git push origin HEAD:main
           fi
