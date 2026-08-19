@@ -4,11 +4,11 @@ from __future__ import annotations
 import gzip
 import io
 import json
-import urllib.request
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
 
+from tools.safe_http import fetch_bounded_https
 from tools.xmltv_time import parse_xmltv_time
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -16,16 +16,21 @@ REGISTRY = ROOT / "data" / "source-candidates.json"
 OUT = ROOT / "data" / "source-candidate-report.json"
 MAX_COMPRESSED_BYTES = 50 * 1024 * 1024
 MAX_XML_BYTES = 250 * 1024 * 1024
-UA = "X1-EPG/1.0 (+https://github.com/x1-dotcom/x1epg)"
+XML_CONTENT_TYPES = ("application/xml", "text/xml", "text/plain", "application/octet-stream")
+GZIP_CONTENT_TYPES = ("application/gzip", "application/x-gzip", "application/octet-stream")
 
 
-def fetch(url: str) -> bytes:
-    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/xml,text/xml,application/gzip,*/*"})
-    with urllib.request.urlopen(req, timeout=45) as resp:
-        data = resp.read(MAX_COMPRESSED_BYTES + 1)
-    if len(data) > MAX_COMPRESSED_BYTES:
-        raise RuntimeError("candidate exceeds compressed safety limit")
-    return data
+def fetch(url: str, candidate_type: str) -> bytes:
+    allowed = GZIP_CONTENT_TYPES if candidate_type == "xmltv-gzip" else XML_CONTENT_TYPES
+    return fetch_bounded_https(
+        url,
+        max_bytes=MAX_COMPRESSED_BYTES if candidate_type == "xmltv-gzip" else MAX_XML_BYTES,
+        timeout=45,
+        accept="application/xml,text/xml,application/gzip,application/octet-stream,*/*",
+        allowed_content_types=allowed,
+        retries=1,
+        max_redirects=3,
+    ).data
 
 
 def decode(candidate_type: str, data: bytes) -> bytes:
@@ -78,8 +83,9 @@ def main() -> None:
             rows.append(row)
             continue
         try:
-            raw = fetch(c["url"])
-            xml = decode(c.get("type", "xmltv"), raw)
+            candidate_type = c.get("type", "xmltv")
+            raw = fetch(c["url"], candidate_type)
+            xml = decode(candidate_type, raw)
             channel_count, programme_count, newest, invalid_timestamps = parse_xmltv(xml)
             age_hours = None if newest is None else round((now - newest).total_seconds() / 3600, 2)
             fresh = newest is not None and age_hours <= c.get("maxProgrammeAgeHours", 48)
@@ -98,7 +104,7 @@ def main() -> None:
         except Exception as exc:
             row.update({"status": "FAILED", "decision": "REJECT_FETCH_OR_PARSE", "error": str(exc)})
         rows.append(row)
-    OUT.write_text(json.dumps({"schemaVersion": 2, "generatedAt": now.isoformat(), "policy": "Candidates never become fallback sources automatically. Promotion requires strict timezone-aware XMLTV timestamps, freshness, programme presence, coverage, stability and explicit rights review. Candidates blocked by terms or permission requirements are not fetched by the automated auditor.", "candidates": rows}, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    OUT.write_text(json.dumps({"schemaVersion": 3, "generatedAt": now.isoformat(), "networkPolicy": "HTTPS only; port 443 only; same-host HTTPS redirects only; bounded downloads/decompression; content-type gate; transient retry only.", "policy": "Candidates never become fallback sources automatically. Promotion requires strict timezone-aware XMLTV timestamps, freshness, programme presence, coverage, stability and explicit rights review. Candidates blocked by terms or permission requirements are not fetched by the automated auditor.", "candidates": rows}, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     for row in rows:
         print(f"{row['candidateId']}: {row['decision']} channels={row.get('channelCount', 0)} programmes={row.get('programmeCount', 0)} invalidTimes={row.get('invalidTimestampCount', 0)} newest={row.get('newestProgramme')}")
 
