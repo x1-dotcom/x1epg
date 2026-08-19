@@ -15,6 +15,7 @@ on:
       - 'tools/plan_merge.py'
       - 'tools/generate_xmltv.py'
       - 'tools/audit_source_candidates.py'
+      - 'tools/compare_sources.py'
       - 'tools/validate_sources.py'
       - '.github/workflows/sync-epg.yml'
 
@@ -28,7 +29,7 @@ concurrency:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - name: Checkout
@@ -54,6 +55,10 @@ jobs:
         continue-on-error: true
         run: python tools/audit_source_candidates.py
 
+      - name: Compare EPGShare01 and dobleM channel-by-channel
+        continue-on-error: true
+        run: python tools/compare_sources.py
+
       - name: Ingest and validate approved live XMLTV sources
         id: sync
         continue-on-error: true
@@ -74,6 +79,7 @@ jobs:
         run: |
           python - <<'PY'
           import json
+          from pathlib import Path
           r = json.load(open('data/merge-report.json', encoding='utf-8'))
           print('Channels:', r['channelCount'])
           print('Available:', r['availableCount'])
@@ -81,13 +87,17 @@ jobs:
           print('Fallback used:', r['fallbackUsedCount'])
           print('Selected rights blocked:', r['selectedRightsBlockedCount'])
           print('Public XMLTV generation allowed:', r['publicGenerationAllowed'])
-          if __import__('pathlib').Path('data/source-candidate-report.json').exists():
+          if Path('data/source-candidate-report.json').exists():
               c = json.load(open('data/source-candidate-report.json', encoding='utf-8'))
               for row in c.get('candidates', []):
                   print('Candidate:', row['candidateId'], row['decision'], 'newest=', row.get('newestProgramme'))
+          if Path('data/source-comparison-report.json').exists():
+              c = json.load(open('data/source-comparison-report.json', encoding='utf-8'))
+              print('Spanish channels compared:', c['channelsCompared'])
+              print('Technical winner counts:', c['winnerCounts'])
           PY
 
-      - name: Persist canonical index, health, candidate and merge reports
+      - name: Persist canonical index and health reports
         if: always()
         run: |
           if [ ! -f data/sync-report.json ]; then
@@ -97,14 +107,13 @@ jobs:
           git config user.name 'x1-epg-bot'
           git config user.email 'x1-epg-bot@users.noreply.github.com'
           git add data/index.json data/sync-report.json
-          if [ -f data/source-candidate-report.json ]; then
-            git add data/source-candidate-report.json
-          fi
-          if [ -f data/merge-report.json ]; then
-            git add data/merge-report.json
-          fi
+          for report in data/source-candidate-report.json data/source-comparison-report.json data/merge-report.json; do
+            if [ -f "$report" ]; then
+              git add "$report"
+            fi
+          done
           if ! git diff --cached --quiet; then
-            git commit -m 'Refresh X1 EPG canonical, source, candidate and fallback health'
+            git commit -m 'Refresh X1 EPG canonical and source health reports'
             git pull --rebase origin main
             git push origin HEAD:main
           fi
