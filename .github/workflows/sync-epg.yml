@@ -110,12 +110,23 @@ jobs:
             --sync "${{ steps.sync.outcome }}" \
             --merge "${{ steps.merge.outcome }}"
 
+      - name: Build immutable run provenance manifest
+        if: always()
+        run: python tools/run_provenance.py
+
       - name: Show validation and merge decision
         if: always()
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
+          if Path('data/run-provenance.json').exists():
+              p = json.load(open('data/run-provenance.json', encoding='utf-8'))
+              print('Provenance digest:', p['provenanceSha256'])
+              print('Provenance commit:', p['identity'].get('commitSha'))
+              print('Provenance run:', p['identity'].get('runId'), 'attempt', p['identity'].get('runAttempt'))
+              print('Manifest count:', len(p.get('manifests', [])))
+              print('Upstream digest count:', len(p.get('upstreamArtifacts', [])))
           if Path('data/lkg-decision.json').exists():
               l = json.load(open('data/lkg-decision.json', encoding='utf-8'))
               print('LKG decision:', l['decision'])
@@ -130,11 +141,11 @@ jobs:
               print('Candidate picon coverage:', g['piconCoverage'])
           if Path('data/channel-list-validation.json').exists():
               c = json.load(open('data/channel-list-validation.json', encoding='utf-8'))
-              print('Channel-list sources:', [(r.get('sourceId'), r.get('status'), len(r.get('mappedMissing', []))) for r in c.get('sources', [])])
+              print('Channel-list sources:', [(r.get('sourceId'), r.get('status'), len(r.get('mappedMissing', [])), r.get('channelListSha256')) for r in c.get('sources', [])])
           if Path('data/sync-report.json').exists():
               s = json.load(open('data/sync-report.json', encoding='utf-8'))
               for row in s.get('sources', []):
-                  print('Live source:', row['sourceId'], row['status'], 'present=', f"{row.get('mappedPresent',0)}/{row.get('mappedExpected',0)}", 'programmes=', row.get('mappedProgrammeCount',0), 'fresh=', row.get('fresh'))
+                  print('Live source:', row['sourceId'], row['status'], 'present=', f"{row.get('mappedPresent',0)}/{row.get('mappedExpected',0)}", 'programmes=', row.get('mappedProgrammeCount',0), 'fresh=', row.get('fresh'), 'wireSha=', row.get('compressedSha256'), 'xmlSha=', row.get('xmlSha256'))
           if Path('data/runtime-failure-forensics.json').exists():
               f = json.load(open('data/runtime-failure-forensics.json', encoding='utf-8'))
               print('Runtime forensics:', f['status'], 'failures=', f['failureCount'])
@@ -184,16 +195,20 @@ jobs:
             echo 'LKG decision missing'
             exit 1
           fi
+          if [ ! -f data/run-provenance.json ]; then
+            echo 'run provenance missing'
+            exit 1
+          fi
           git config user.name 'x1-epg-bot'
           git config user.email 'x1-epg-bot@users.noreply.github.com'
-          git add data/index.json data/sync-report.json data/lkg-decision.json
+          git add data/index.json data/sync-report.json data/lkg-decision.json data/run-provenance.json
           for report in data/lkg-state.json data/global-validation.json data/catalog-coverage.json data/channel-list-validation.json data/runtime-failure-state.json data/runtime-failure-forensics.json data/source-candidate-report.json data/source-comparison-report.json data/quality-recommendations.json data/quality-state.json data/quality-decision-report.json data/merge-report.json; do
             if [ -f "$report" ]; then
               git add "$report"
             fi
           done
           if ! git diff --cached --quiet; then
-            git commit -m 'Refresh X1 EPG active LKG and runtime evidence'
+            git commit -m 'Refresh X1 EPG active LKG, provenance and runtime evidence'
             git pull --rebase origin main
             git push origin HEAD:main
           fi
