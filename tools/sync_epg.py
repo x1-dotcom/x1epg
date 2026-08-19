@@ -4,18 +4,18 @@ from __future__ import annotations
 import gzip
 import io
 import json
-import re
 import urllib.request
 import xml.etree.ElementTree as ET
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
+
+from tools.xmltv_time import parse_xmltv_time
 
 ROOT = Path(__file__).resolve().parents[1]
 MAX_COMPRESSED = 50 * 1024 * 1024
 MAX_UNCOMPRESSED = 250 * 1024 * 1024
 DEFAULT_FRESHNESS_HOURS = 48
 UA = "X1-EPG/1.0 (+https://github.com/x1-dotcom/x1epg)"
-XMLTV_TIME_RE = re.compile(r"^(\d{14})\s([+-])(\d{2})(\d{2})$")
 
 
 def fetch_bytes(url: str) -> bytes:
@@ -41,23 +41,6 @@ def decode_source(source_type: str, payload: bytes) -> bytes:
     return payload
 
 
-def parse_xmltv_time(raw: str | None) -> datetime:
-    if not raw:
-        raise ValueError("missing XMLTV timestamp")
-    match = XMLTV_TIME_RE.fullmatch(raw.strip())
-    if not match:
-        raise ValueError(f"XMLTV timestamp must include numeric UTC offset: {raw!r}")
-    stamp, sign, hour_text, minute_text = match.groups()
-    hours = int(hour_text)
-    minutes = int(minute_text)
-    if minutes > 59 or hours > 14 or (hours == 14 and minutes != 0):
-        raise ValueError(f"invalid XMLTV UTC offset: {raw!r}")
-    offset = timedelta(hours=hours, minutes=minutes)
-    if sign == "-":
-        offset = -offset
-    return datetime.strptime(stamp, "%Y%m%d%H%M%S").replace(tzinfo=timezone(offset)).astimezone(timezone.utc)
-
-
 def mappings_for_source(manifest: dict, source_id: str) -> dict[str, str]:
     result: dict[str, str] = {}
     sources = manifest.get("sources", [])
@@ -73,13 +56,11 @@ def mappings_for_source(manifest: dict, source_id: str) -> dict[str, str]:
                             raise RuntimeError(f"duplicate source channel mapping: {source_id}/{source_channel_id}")
                         result[source_channel_id] = canonical_id
             continue
-
         legacy = channel.get("sourceChannelId")
         if len(sources) == 1 and sources[0].get("sourceId") == source_id and isinstance(legacy, str) and legacy.strip():
             if legacy in result:
                 raise RuntimeError(f"duplicate legacy source channel mapping: {source_id}/{legacy}")
             result[legacy] = canonical_id
-
     return result
 
 
@@ -118,31 +99,20 @@ def main() -> None:
     reports = []
     failed = False
     now = datetime.now(timezone.utc)
-
     for manifest_path in sorted((ROOT / "sources").glob("*.json")):
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-
         for source in manifest.get("sources", []):
             if not source.get("ingestEnabled"):
                 continue
             source_id = source.get("sourceId")
             mappings = mappings_for_source(manifest, source_id)
-            row = {
-                "manifest": str(manifest_path.relative_to(ROOT)),
-                "country": manifest.get("country"),
-                "sourceId": source_id,
-                "url": source.get("url"),
-                "publishAllowed": source.get("publishAllowed", False),
-                "rightsStatus": source.get("rightsStatus"),
-            }
+            row = {"manifest": str(manifest_path.relative_to(ROOT)), "country": manifest.get("country"), "sourceId": source_id, "url": source.get("url"), "publishAllowed": source.get("publishAllowed", False), "rightsStatus": source.get("rightsStatus")}
             try:
                 if not mappings:
                     raise RuntimeError("ingest-enabled source has zero enabled canonical mappings")
-
                 compressed = fetch_bytes(source["url"])
                 xml = decode_source(source["type"], compressed)
                 source_channels, programme_counts, newest_by_channel, malformed = validate_xmltv(xml, set(mappings))
-
                 mapped_present = sorted(cid for cid in mappings if cid in source_channels)
                 mapped_missing = sorted(cid for cid in mappings if cid not in source_channels)
                 mapped_without_programmes = sorted(cid for cid in mapped_present if programme_counts.get(cid, 0) == 0)
@@ -151,7 +121,6 @@ def main() -> None:
                 age_hours = None if newest is None else round((now - newest).total_seconds() / 3600, 2)
                 freshness_limit = int(source.get("maxProgrammeAgeHours", DEFAULT_FRESHNESS_HOURS))
                 fresh = newest is not None and age_hours <= freshness_limit
-
                 issues = []
                 if mapped_missing:
                     issues.append("MAPPED_CHANNELS_MISSING")
@@ -161,50 +130,17 @@ def main() -> None:
                     issues.append("MALFORMED_OR_NAIVE_XMLTV_TIMESTAMPS")
                 if not fresh:
                     issues.append("STALE_OR_UNDATED_PROGRAMMES")
-
-                row.update({
-                    "status": "OK" if not issues else "FAILED",
-                    "compressedBytes": len(compressed),
-                    "xmlBytes": len(xml),
-                    "sourceChannelCount": len(source_channels),
-                    "mappedExpected": len(mappings),
-                    "mappedPresent": len(mapped_present),
-                    "mappedMissing": mapped_missing,
-                    "mappedWithoutProgrammes": mapped_without_programmes,
-                    "mappedProgrammeCount": programmes,
-                    "malformedMappedTimestampCount": malformed,
-                    "newestMappedProgramme": newest.isoformat() if newest else None,
-                    "newestMappedProgrammeAgeHours": age_hours,
-                    "freshnessLimitHours": freshness_limit,
-                    "fresh": fresh,
-                    "issues": issues,
-                    "publicationDecision": "ALLOWED" if source.get("publishAllowed") and source.get("rightsStatus") == "verified-redistributable" else "BLOCKED_RIGHTS_UNVERIFIED",
-                })
+                row.update({"status": "OK" if not issues else "FAILED", "compressedBytes": len(compressed), "xmlBytes": len(xml), "sourceChannelCount": len(source_channels), "mappedExpected": len(mappings), "mappedPresent": len(mapped_present), "mappedMissing": mapped_missing, "mappedWithoutProgrammes": mapped_without_programmes, "mappedProgrammeCount": programmes, "malformedMappedTimestampCount": malformed, "newestMappedProgramme": newest.isoformat() if newest else None, "newestMappedProgrammeAgeHours": age_hours, "freshnessLimitHours": freshness_limit, "fresh": fresh, "issues": issues, "publicationDecision": "ALLOWED" if source.get("publishAllowed") and source.get("rightsStatus") == "verified-redistributable" else "BLOCKED_RIGHTS_UNVERIFIED"})
                 if issues:
                     failed = True
             except Exception as exc:
                 failed = True
                 row.update({"status": "FAILED", "error": str(exc), "publicationDecision": "BLOCKED"})
             reports.append(row)
-
-    output = {
-        "schemaVersion": 2,
-        "generatedAt": now.isoformat(),
-        "mode": "INGEST_VALIDATE_ONLY",
-        "policy": "X1 requires explicit source mappings, timezone-aware XMLTV timestamps, mapped programme presence and freshness. X1 never republishes an upstream EPG unless publishAllowed=true and rightsStatus=verified-redistributable.",
-        "sources": reports,
-    }
-    out = ROOT / "data" / "sync-report.json"
-    out.write_text(json.dumps(output, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-
+    output = {"schemaVersion": 2, "generatedAt": now.isoformat(), "mode": "INGEST_VALIDATE_ONLY", "policy": "X1 requires explicit source mappings, timezone-aware XMLTV timestamps, mapped programme presence and freshness. X1 never republishes an upstream EPG unless publishAllowed=true and rightsStatus=verified-redistributable.", "sources": reports}
+    (ROOT / "data" / "sync-report.json").write_text(json.dumps(output, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     for row in reports:
-        print(
-            f"{row['sourceId']}: {row['status']} "
-            f"present={row.get('mappedPresent', 0)}/{row.get('mappedExpected', 0)} "
-            f"programmes={row.get('mappedProgrammeCount', 0)} "
-            f"fresh={row.get('fresh')} publish={row['publicationDecision']}"
-        )
-
+        print(f"{row['sourceId']}: {row['status']} present={row.get('mappedPresent', 0)}/{row.get('mappedExpected', 0)} programmes={row.get('mappedProgrammeCount', 0)} fresh={row.get('fresh')} publish={row['publicationDecision']}")
     if failed:
         raise SystemExit(1)
 
