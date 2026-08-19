@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "sourceGroup": "netherlands",
+  "country": "NL",
+  "timezone": "Europe/Amsterdam",
+  "languages": ["nl-NL"],
+  "sources": [
+    {
+      "sourceId": "epgshare01-nl1",
+      "type": "xmltv-gzip",
+      "url": "https://epgshare01.online/epgshare01/epg_ripper_NL1.xml.gz",
+      "channelListUrl": "https://epgshare01.online/epgshare01/epg_ripper_NL1.txt",
+      "ingestEnabled": true,
+      "publishAllowed": false,
+      "rightsStatus": "public-feed-no-license-found",
+      "notes": "Operational XMLTV source for the Netherlands. Public redistribution remains blocked until explicit redistribution rights are verified."
+    }
+  ],
+  "channels": [
+    {"canonicalId":"npo-1","name":"NPO 1","aliases":["NPO1","NPO 1 HD"],"piconId":"npo-1","tvgIds":["NPO.1.nl"],"sourceMappings":[{"sourceId":"epgshare01-nl1","channelId":"NPO.1.nl","priority":1,"enabled":true}]},
+    {"canonicalId":"npo-2","name":"NPO 2","aliases":["NPO2","NPO 2 HD"],"piconId":"npo-2","tvgIds":["NPO.2.nl"],"sourceMappings":[{"sourceId":"epgshare01-nl1","channelId":"NPO.2.nl","priority":1,"enabled":true}]},
+    {"canonicalId":"npo-3","name":"NPO 3","aliases":["NPO3","NPO 3 HD"],"piconId":"npo-3","tvgIds":["NPO.3.nl"],"sourceMappings":[{"sourceId":"epgshare01-nl1","channelId":"NPO.3.nl","priority":1,"enabled":true}]},
+    {"canonicalId":"rtl-4","name":"RTL 4","aliases":["RTL4","RTL 4 HD"],"piconId":"rtl-4","tvgIds":["RTL.4.nl"],"sourceMappings":[{"sourceId":"epgshare01-nl1","channelId":"RTL.4.nl","priority":1,"enabled":true}]},
+    {"canonicalId":"sbs6","name":"SBS6","aliases":["SBS 6","SBS6 HD"],"piconId":"sbs6","tvgIds":["SBS6.nl"],"sourceMappings":[{"sourceId":"epgshare01-nl1","channelId":"SBS6.nl","priority":1,"enabled":true}]}
+  ]
+}
