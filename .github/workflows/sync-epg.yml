@@ -1,0 +1,68 @@
+name: Sync X1 EPG Sources
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 */6 * * *'
+  push:
+    branches:
+      - main
+    paths:
+      - 'sources/**'
+      - 'tools/sync_epg.py'
+      - 'tools/validate_sources.py'
+      - '.github/workflows/sync-epg.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: x1-epg-sync-main
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate catalog
+        run: python tools/validate_catalog.py
+
+      - name: Validate source manifests
+        run: python tools/validate_sources.py
+
+      - name: Ingest and validate live XMLTV sources
+        id: sync
+        continue-on-error: true
+        run: python tools/sync_epg.py
+
+      - name: Persist source health report
+        if: always()
+        run: |
+          if [ ! -f data/sync-report.json ]; then
+            echo 'sync report missing'
+            exit 1
+          fi
+          git config user.name 'x1-epg-bot'
+          git config user.email 'x1-epg-bot@users.noreply.github.com'
+          git add data/sync-report.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Refresh X1 EPG source health report'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+
+      - name: Fail if live ingestion validation failed
+        if: steps.sync.outcome == 'failure'
+        run: exit 1
