@@ -16,6 +16,7 @@ on:
       - 'tools/generate_xmltv.py'
       - 'tools/audit_source_candidates.py'
       - 'tools/compare_sources.py'
+      - 'tools/quality_engine.py'
       - 'tools/validate_sources.py'
       - '.github/workflows/sync-epg.yml'
 
@@ -56,8 +57,14 @@ jobs:
         run: python tools/audit_source_candidates.py
 
       - name: Compare EPGShare01 and dobleM channel-by-channel
+        id: compare
         continue-on-error: true
         run: python tools/compare_sources.py
+
+      - name: Build advisory EPG quality recommendations
+        if: steps.compare.outcome == 'success'
+        continue-on-error: true
+        run: python tools/quality_engine.py
 
       - name: Ingest and validate approved live XMLTV sources
         id: sync
@@ -95,6 +102,9 @@ jobs:
               c = json.load(open('data/source-comparison-report.json', encoding='utf-8'))
               print('Spanish channels compared:', c['channelsCompared'])
               print('Technical winner counts:', c['winnerCounts'])
+          if Path('data/quality-recommendations.json').exists():
+              q = json.load(open('data/quality-recommendations.json', encoding='utf-8'))
+              print('Advisory quality recommendations:', q['recommendationCounts'])
           PY
 
       - name: Persist canonical index and health reports
@@ -107,7 +117,7 @@ jobs:
           git config user.name 'x1-epg-bot'
           git config user.email 'x1-epg-bot@users.noreply.github.com'
           git add data/index.json data/sync-report.json
-          for report in data/source-candidate-report.json data/source-comparison-report.json data/merge-report.json; do
+          for report in data/source-candidate-report.json data/source-comparison-report.json data/quality-recommendations.json data/merge-report.json; do
             if [ -f "$report" ]; then
               git add "$report"
             fi
