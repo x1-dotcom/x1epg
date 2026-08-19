@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="360" viewBox="0 0 1600 360" role="img" aria-label="X1 EPG pipeline">
+<rect width="1600" height="360" rx="22" fill="#070c10"/>
+<text x="72" y="66" fill="#eaf9ff" font-family="Arial,Helvetica,sans-serif" font-size="30" font-weight="800">X1 // EPG DATA PATH</text>
+<text x="72" y="102" fill="#6f8b99" font-family="Arial,Helvetica,sans-serif" font-size="16" letter-spacing="4">EACH GATE MUST PASS BEFORE THE NEXT STATE IS TRUSTED</text>
+<g font-family="Arial,Helvetica,sans-serif">
+  <g><rect x="72" y="156" width="210" height="86" rx="10" fill="#0c151a" stroke="#18e8ff"/><text x="103" y="193" fill="#18e8ff" font-size="16" font-weight="700">01 / INGEST</text><text x="103" y="220" fill="#e8fbff" font-size="20">bounded fetch</text></g>
+  <path d="M282 199H332" stroke="#334a55" stroke-width="4"/>
+  <g><rect x="332" y="156" width="210" height="86" rx="10" fill="#0c151a" stroke="#18e8ff"/><text x="363" y="193" fill="#18e8ff" font-size="16" font-weight="700">02 / VALIDATE</text><text x="363" y="220" fill="#e8fbff" font-size="20">XMLTV + IDs</text></g>
+  <path d="M542 199H592" stroke="#334a55" stroke-width="4"/>
+  <g><rect x="592" y="156" width="210" height="86" rx="10" fill="#0c151a" stroke="#18e8ff"/><text x="623" y="193" fill="#18e8ff" font-size="16" font-weight="700">03 / NORMALIZE</text><text x="623" y="220" fill="#e8fbff" font-size="20">canonical data</text></g>
+  <path d="M802 199H852" stroke="#334a55" stroke-width="4"/>
+  <g><rect x="852" y="156" width="210" height="86" rx="10" fill="#0c151a" stroke="#4d7cff"/><text x="883" y="193" fill="#8fa8ff" font-size="16" font-weight="700">04 / QUALIFY</text><text x="883" y="220" fill="#eef1ff" font-size="20">quality + freshness</text></g>
+  <path d="M1062 199H1112" stroke="#334a55" stroke-width="4"/>
+  <g><rect x="1112" y="156" width="210" height="86" rx="10" fill="#0c151a" stroke="#4d7cff"/><text x="1143" y="193" fill="#8fa8ff" font-size="16" font-weight="700">05 / LKG</text><text x="1143" y="220" fill="#eef1ff" font-size="20">preserve good state</text></g>
+  <path d="M1322 199H1372" stroke="#334a55" stroke-width="4"/>
+  <g><rect x="1372" y="156" width="156" height="86" rx="10" fill="#0c151a" stroke="#4d7cff"/><text x="1396" y="193" fill="#8fa8ff" font-size="16" font-weight="700">06 / PROVE</text><text x="1396" y="220" fill="#eef1ff" font-size="18">provenance</text></g>
+</g>
+<text x="72" y="308" fill="#9eb0b9" font-family="Arial,Helvetica,sans-serif" font-size="17">No automatic source promotion · no fuzzy ID correction · failed refreshes keep last-known-good state</text>
+</svg>
