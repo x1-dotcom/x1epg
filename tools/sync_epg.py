@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import gzip
+import hashlib
 import io
 import json
 import xml.etree.ElementTree as ET
@@ -17,6 +18,10 @@ MAX_UNCOMPRESSED = 250 * 1024 * 1024
 DEFAULT_FRESHNESS_HOURS = 48
 XML_CONTENT_TYPES = ("application/xml", "text/xml", "text/plain", "application/octet-stream")
 GZIP_CONTENT_TYPES = ("application/gzip", "application/x-gzip", "application/octet-stream")
+
+
+def sha256_bytes(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
 
 
 def fetch_bytes(url: str, source_type: str) -> bytes:
@@ -135,14 +140,14 @@ def main() -> None:
                     issues.append("MALFORMED_OR_NAIVE_XMLTV_TIMESTAMPS")
                 if not fresh:
                     issues.append("STALE_OR_UNDATED_PROGRAMMES")
-                row.update({"status": "OK" if not issues else "FAILED", "compressedBytes": len(compressed), "xmlBytes": len(xml), "sourceChannelCount": len(source_channels), "mappedExpected": len(mappings), "mappedPresent": len(mapped_present), "mappedMissing": mapped_missing, "mappedWithoutProgrammes": mapped_without_programmes, "mappedProgrammeCount": programmes, "malformedMappedTimestampCount": malformed, "newestMappedProgramme": newest.isoformat() if newest else None, "newestMappedProgrammeAgeHours": age_hours, "freshnessLimitHours": freshness_limit, "fresh": fresh, "issues": issues, "publicationDecision": "ALLOWED" if source.get("publishAllowed") and source.get("rightsStatus") == "verified-redistributable" else "BLOCKED_RIGHTS_UNVERIFIED"})
+                row.update({"status": "OK" if not issues else "FAILED", "compressedBytes": len(compressed), "compressedSha256": sha256_bytes(compressed), "xmlBytes": len(xml), "xmlSha256": sha256_bytes(xml), "sourceChannelCount": len(source_channels), "mappedExpected": len(mappings), "mappedPresent": len(mapped_present), "mappedMissing": mapped_missing, "mappedWithoutProgrammes": mapped_without_programmes, "mappedProgrammeCount": programmes, "malformedMappedTimestampCount": malformed, "newestMappedProgramme": newest.isoformat() if newest else None, "newestMappedProgrammeAgeHours": age_hours, "freshnessLimitHours": freshness_limit, "fresh": fresh, "issues": issues, "publicationDecision": "ALLOWED" if source.get("publishAllowed") and source.get("rightsStatus") == "verified-redistributable" else "BLOCKED_RIGHTS_UNVERIFIED"})
                 if issues:
                     failed = True
             except Exception as exc:
                 failed = True
                 row.update({"status": "FAILED", "error": str(exc), "publicationDecision": "BLOCKED"})
             reports.append(row)
-    output = {"schemaVersion": 3, "generatedAt": now.isoformat(), "mode": "INGEST_VALIDATE_ONLY", "networkPolicy": "HTTPS only; port 443 only; same-host HTTPS redirects only; bounded downloads; bounded decompression; content-type gate; transient retry only.", "policy": "X1 requires explicit source mappings, timezone-aware XMLTV timestamps, mapped programme presence and freshness. X1 never republishes an upstream EPG unless publishAllowed=true and rightsStatus=verified-redistributable.", "sources": reports}
+    output = {"schemaVersion": 4, "generatedAt": now.isoformat(), "mode": "INGEST_VALIDATE_ONLY", "networkPolicy": "HTTPS only; port 443 only; same-host HTTPS redirects only; bounded downloads; bounded decompression; content-type gate; transient retry only.", "policy": "X1 requires explicit source mappings, timezone-aware XMLTV timestamps, mapped programme presence and freshness. X1 never republishes an upstream EPG unless publishAllowed=true and rightsStatus=verified-redistributable.", "sources": reports}
     (ROOT / "data" / "sync-report.json").write_text(json.dumps(output, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     for row in reports:
         print(f"{row['sourceId']}: {row['status']} present={row.get('mappedPresent', 0)}/{row.get('mappedExpected', 0)} programmes={row.get('mappedProgrammeCount', 0)} fresh={row.get('fresh')} publish={row['publicationDecision']}")
