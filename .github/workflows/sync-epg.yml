@@ -55,6 +55,11 @@ jobs:
       - name: Build canonical catalog coverage report
         run: python tools/catalog_coverage.py
 
+      - name: Validate exact upstream channel-list mappings
+        id: channel_list
+        continue-on-error: true
+        run: python tools/validate_channel_lists.py
+
       - name: Audit untrusted source candidates
         continue-on-error: true
         run: python tools/audit_source_candidates.py
@@ -80,6 +85,10 @@ jobs:
         continue-on-error: true
         run: python tools/sync_epg.py
 
+      - name: Build runtime failure forensics
+        if: always()
+        run: python tools/runtime_failure_forensics.py
+
       - name: Build priority/fallback merge plan
         id: merge
         if: steps.sync.outcome == 'success'
@@ -102,10 +111,20 @@ jobs:
               print('Canonical channels:', g['indexChannelCount'])
               print('Countries:', g['countries'])
               print('Picon coverage:', g['piconCoverage'])
+          if Path('data/channel-list-validation.json').exists():
+              c = json.load(open('data/channel-list-validation.json', encoding='utf-8'))
+              print('Channel-list sources:', [(r.get('sourceId'), r.get('status'), len(r.get('mappedMissing', []))) for r in c.get('sources', [])])
           if Path('data/sync-report.json').exists():
               s = json.load(open('data/sync-report.json', encoding='utf-8'))
               for row in s.get('sources', []):
                   print('Live source:', row['sourceId'], row['status'], 'present=', f"{row.get('mappedPresent',0)}/{row.get('mappedExpected',0)}", 'programmes=', row.get('mappedProgrammeCount',0), 'fresh=', row.get('fresh'))
+          if Path('data/runtime-failure-forensics.json').exists():
+              f = json.load(open('data/runtime-failure-forensics.json', encoding='utf-8'))
+              print('Runtime forensics:', f['status'], 'failures=', f['failureCount'])
+              print('Forensics by issue:', f['countsByIssue'])
+              print('Forensics by country:', f['countsByCountry'])
+              for row in f.get('failures', [])[:50]:
+                  print('Failure:', row.get('country'), row.get('sourceId'), row.get('issue'), row.get('canonicalId'), row.get('upstreamChannelId'), 'first=', row.get('firstSeenAt'), 'observations=', row.get('consecutiveObservations'))
           if Path('data/merge-report.json').exists():
               r = json.load(open('data/merge-report.json', encoding='utf-8'))
               print('Channels:', r['channelCount'])
@@ -147,16 +166,20 @@ jobs:
           git config user.name 'x1-epg-bot'
           git config user.email 'x1-epg-bot@users.noreply.github.com'
           git add data/index.json data/sync-report.json
-          for report in data/global-validation.json data/catalog-coverage.json data/source-candidate-report.json data/source-comparison-report.json data/quality-recommendations.json data/quality-state.json data/quality-decision-report.json data/merge-report.json; do
+          for report in data/global-validation.json data/catalog-coverage.json data/channel-list-validation.json data/runtime-failure-state.json data/runtime-failure-forensics.json data/source-candidate-report.json data/source-comparison-report.json data/quality-recommendations.json data/quality-state.json data/quality-decision-report.json data/merge-report.json; do
             if [ -f "$report" ]; then
               git add "$report"
             fi
           done
           if ! git diff --cached --quiet; then
-            git commit -m 'Refresh X1 EPG runtime proof and source health reports'
+            git commit -m 'Refresh X1 EPG runtime proof and failure forensics'
             git pull --rebase origin main
             git push origin HEAD:main
           fi
+
+      - name: Fail if upstream channel-list preflight failed
+        if: steps.channel_list.outcome == 'failure'
+        run: exit 1
 
       - name: Fail if live ingestion validation failed
         if: steps.sync.outcome == 'failure'
