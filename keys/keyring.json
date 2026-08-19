@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "activeKeyId": null,
+  "keys": [],
+  "transitions": [],
+  "policy": "X1 EPG Ed25519 verification key registry. Private keys must never be committed. Key activation and retirement require explicit transition records."
+}
