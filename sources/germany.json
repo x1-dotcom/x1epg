@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "sourceGroup": "germany",
+  "country": "DE",
+  "timezone": "Europe/Berlin",
+  "languages": ["de-DE"],
+  "sources": [
+    {
+      "sourceId": "epgshare01-de1",
+      "type": "xmltv-gzip",
+      "url": "https://epgshare01.online/epgshare01/epg_ripper_DE1.xml.gz",
+      "channelListUrl": "https://epgshare01.online/epgshare01/epg_ripper_DE1.txt",
+      "ingestEnabled": true,
+      "publishAllowed": false,
+      "rightsStatus": "public-feed-no-license-found",
+      "notes": "Operational XMLTV source for Germany. Public redistribution remains blocked until explicit redistribution rights are verified."
+    }
+  ],
+  "channels": [
+    {"canonicalId":"das-erste","name":"Das Erste","aliases":["ARD","Das Erste HD"],"piconId":"das-erste","tvgIds":["Das.Erste.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"Das.Erste.de","priority":1,"enabled":true}]},
+    {"canonicalId":"zdf","name":"ZDF","aliases":["ZDF HD"],"piconId":"zdf","tvgIds":["ZDF.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"ZDF.de","priority":1,"enabled":true}]},
+    {"canonicalId":"rtl-de","name":"RTL","aliases":["RTL Television","RTL HD"],"piconId":"rtl-de","tvgIds":["RTL.de"],"sourceMappings":[{"sourceId":"epgshare01-de1","channelId":"RTL.de","priority":1,"enabled":true}]}
+  ]
+}
