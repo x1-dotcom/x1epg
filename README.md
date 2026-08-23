@@ -3,27 +3,46 @@
 </p>
 
 <p align="center">
-  <strong>X1 EPG is a validation-first XMLTV control system for the X1 ecosystem.</strong><br>
-  Canonical IDs · multi-country catalogues · source qualification · last-known-good preservation · provenance · integrity controls
+  <strong>PUBLIC · COMMUNITY · DATA CONTROL</strong><br>
+  Validation-first XMLTV control for canonical IDs, source qualification, provenance and last-known-good safety.
+</p>
+
+<p align="center">
+  <a href="https://x1panel.space"><strong>WEBSITE</strong></a>
+  &nbsp;·&nbsp;
+  <a href="https://forum.x1panel.space"><strong>FORUM</strong></a>
+  &nbsp;·&nbsp;
+  <a href="https://discord.gg/vSSw6jHmw"><strong>DISCORD</strong></a>
+  &nbsp;·&nbsp;
+  <a href="https://t.me/+XkuQS_QuD6g4Nzc0"><strong>TELEGRAM</strong></a>
 </p>
 
 ---
 
-## What X1 EPG is
+## X1 EPG
 
-X1 EPG is not a static list of channels and it is not a blind XMLTV mirror.
+**X1 EPG is a validation-first XMLTV control system for the X1 ecosystem.**
 
-It is designed to ingest external programme data, validate it, normalize it into stable X1 channel identities, evaluate source quality, preserve the last-known-good state when refreshes fail, and produce forensic evidence about what was observed.
+> **Free means functional.**
+> The public project is intended to be useful as released while preserving explicit technical, approval and redistribution boundaries.
 
-The project deliberately keeps three decisions separate:
+X1 EPG is not a static list of channels and it is not a blind XMLTV mirror. It ingests external programme data, validates it, normalizes it into stable X1 channel identities, evaluates source quality, preserves the last-known-good state when refreshes fail and records evidence about what was observed.
 
-**technical quality**, **source approval**, and **redistribution rights**.
+The project deliberately keeps three decisions separate: **technical quality**, **source approval** and **redistribution rights**.
 
-A source can be technically excellent and still remain blocked from publication if redistribution permission is not proven.
+---
 
 <p align="center">
   <img src="./assets/x1-epg-pipeline.svg" alt="X1 EPG data path" width="100%" />
 </p>
+
+## Operating model
+
+`INGEST` → `VALIDATE` → `NORMALIZE` → `QUALIFY` → `PROMOTE / PRESERVE LKG` → `PUBLISH WHEN ALLOWED`
+
+A completed build is not automatically trusted state.
+
+> **BUILD ≠ ACTIVE**
 
 ---
 
@@ -40,8 +59,6 @@ Channel identity is country-first and uses stable `canonicalId` values. Where po
 ---
 
 ## Runtime safety model
-
-The runtime tooling is built to fail closed rather than silently degrade data quality.
 
 Key controls include:
 
@@ -64,19 +81,11 @@ A failed refresh is not treated as permission to replace a valid catalogue with 
 
 X1 EPG separates **candidate output** from **active trusted output**.
 
-The pipeline can build a new index, but that index is not promoted simply because a build command completed. Runtime validation and policy gates decide whether it becomes the new last-known-good state.
-
-If validation fails, the previous accepted state is preserved.
-
-This distinction is intentional:
-
-> **BUILD ≠ ACTIVE**
+The pipeline can build a new index, but runtime validation and policy gates decide whether that index becomes the new last-known-good state. If validation fails, the previous accepted state is preserved.
 
 ---
 
 ## Provenance and integrity
-
-The repository includes tooling to record run provenance and produce tamper-evident integrity evidence around accepted state.
 
 The current source implementation includes:
 
@@ -99,7 +108,7 @@ Operational signing remains dependent on approved X1 key provisioning. External 
   <img src="./assets/x1-epg-trust.svg" alt="X1 EPG trust and publication boundary" width="100%" />
 </p>
 
-## Publication policy
+## Publication / responsibility boundary
 
 X1 EPG treats public availability and redistribution permission as different things.
 
@@ -109,8 +118,6 @@ The current known source posture is conservative:
 - dobleM remains candidate / qualification material unless explicitly approved and rights-compatible;
 - EPG.PW is not treated as an automatically usable commercial redistribution source;
 - stale or historically useful feeds may remain useful as channel-ID evidence without becoming production fallbacks.
-
-Therefore:
 
 > **Ingest can be allowed while publish remains blocked.**
 
@@ -133,8 +140,6 @@ tests/               deterministic tooling tests
 
 ## Core tools
 
-The public tooling includes components for:
-
 `validate_sources` · `validate_channel_lists` · `sync_epg` · `build_index` · `global_validate` · `catalog_coverage` · `compare_sources` · `quality_engine` · `decision_guard` · `runtime_failure_forensics` · `lkg_guard` · `run_provenance` · `integrity_chain` · signed provenance / rotation / anchor support
 
 The exact runtime state of a workflow is not inferred from source code. Source implementation, tests, CI execution and production behaviour remain distinct evidence classes.
@@ -147,25 +152,26 @@ The exact runtime state of a workflow is not inferred from source code. Source i
 
 ---
 
-## X1 ecosystem
+## Related X1 systems
 
-X1 EPG is part of the public X1 tooling family and is designed to interoperate cleanly with other X1 projects such as the picon catalogue while preserving explicit system boundaries.
-
-For the wider X1 ecosystem, visit:
-
-- [X1 GitHub profile](https://github.com/x1-dotcom)
+- [X1 GitHub](https://github.com/x1-dotcom)
 - [X1 Picons](https://github.com/x1-dotcom/picons)
-- [X1 Community Forum](https://forum.x1panel.space)
+- [X1 Stream Manager Community](https://github.com/x1-dotcom/X1-Stream-Manager-Community)
+
+---
+
+## Community
+
+- Website — https://x1panel.space
+- Forum — https://forum.x1panel.space
+- Discord — https://discord.gg/vSSw6jHmw
+- Telegram — https://t.me/+XkuQS_QuD6g4Nzc0
 
 ---
 
 <p align="center">
-  <strong>VALIDATE WHAT YOU INGEST.</strong><br>
-  <strong>PRESERVE WHAT YOU TRUST.</strong><br>
-  <strong>PUBLISH ONLY WHAT YOU ARE ALLOWED TO REDISTRIBUTE.</strong><br><br>
-  <strong>X1 // EPG CONTROL</strong>
-</p>
-
-<p align="center">
-  © 2026 X1Tech Solutions SA. All Rights Reserved.
+  <strong>VALIDATE WHAT YOU INGEST. PRESERVE WHAT YOU TRUST. PUBLISH ONLY WHAT YOU MAY REDISTRIBUTE.</strong><br><br>
+  <strong>X1 // SOFTWARE · SYSTEMS · OPERATIONS</strong><br><br>
+  PUBLIC SOFTWARE. PRIVATE ENGINEERING. ONE X1 IDENTITY.<br><br>
+  <strong>© X1Tech Solutions SA · All Rights Reserved</strong>
 </p>
