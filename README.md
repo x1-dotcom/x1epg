@@ -30,6 +30,10 @@ X1 EPG is not a static list of channels and it is not a blind XMLTV mirror. It i
 
 The project deliberately keeps three decisions separate: **technical quality**, **source approval** and **redistribution rights**.
 
+<p align="center">
+  <img src="./assets/x1-epg-capabilities.svg" alt="X1 EPG capability surface" width="100%" />
+</p>
+
 ---
 
 <p align="center">
